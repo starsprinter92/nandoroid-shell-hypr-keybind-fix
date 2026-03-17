@@ -144,7 +144,7 @@ MouseArea { // Notification group area
             NumberAnimation {
                 duration: Appearance.animation.elementMove.duration
                 easing.type: Appearance.animation.elementMove.type
-                easing.bezierCurve: Appearance.animationCurves.expressiveFastSpatial
+                easing.bezierCurve: Appearance.animationCurves.expressiveDefaultSpatial
             }
         }
         

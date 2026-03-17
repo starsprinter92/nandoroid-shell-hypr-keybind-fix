@@ -349,5 +349,42 @@ import Quickshell
                         }
                     }
                 }
+
+                // 7. App Usage Tracking Toggle
+                SegmentedWrapper {
+                    Layout.fillWidth: true
+                    implicitHeight: usageRow.implicitHeight + 40
+                    orientation: Qt.Vertical
+                    maxRadius: 20
+                    color: Appearance.m3colors.m3surfaceContainerHigh
+
+                    RowLayout {
+                        id: usageRow
+                        anchors.fill: parent
+                        anchors.margins: 20
+                        spacing: 20
+
+                        ColumnLayout {
+                            spacing: 2
+                            StyledText {
+                                text: "App Usage Tracking"
+                                font.pixelSize: Appearance.font.pixelSize.normal
+                                font.weight: Font.Medium
+                                color: Appearance.colors.colOnLayer1
+                            }
+                            StyledText {
+                                text: "Prioritize frequently used apps in search results."
+                                font.pixelSize: Appearance.font.pixelSize.small
+                                color: Appearance.colors.colSubtext
+                            }
+                        }
+                        Item { Layout.fillWidth: true }
+                        
+                        AndroidToggle {
+                            checked: (Config.ready && Config.options.search) ? Config.options.search.enableUsageTracking : true
+                            onToggled: { if (Config.ready && Config.options.search) Config.options.search.enableUsageTracking = checked; }
+                        }
+                    }
+                }
         }
 

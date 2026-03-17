@@ -350,6 +350,7 @@ Singleton {
                 property string commandPrefix: ">"
                 property string iconShape: "Square"
                 property bool enableGrouping: false
+                property bool enableUsageTracking: true
             }
 
             // --- Lock ---

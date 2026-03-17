@@ -147,7 +147,7 @@ Singleton {
     }
 
     function recordExecution(appId) {
-        if (!appId) return;
+        if (!appId || !Config.options.search.enableUsageTracking) return;
         const currentCount = root.usageData[appId] || 0;
         root.usageData[appId] = currentCount + 1;
         const dataStr = JSON.stringify(root.usageData);
@@ -359,23 +359,32 @@ Singleton {
             }
         } else if (strippedQuery.startsWith(Config.options.search.emojiPrefix)) {
             const emojiQuery = strippedQuery.slice(Config.options.search.emojiPrefix.length).toLowerCase().trim();
+            const emojiResults = [];
             for (const item of emojiList) {
                 if (item.name.includes(emojiQuery) || emojiQuery === "") {
-                    results.push({
+                    emojiResults.push({
                         name: item.name, subtitle: "Emoji", emoji: item.emoji, category: "Emoji", id: "emoji-" + item.name, icon: "face", isPlugin: true,
                         execute: () => { Quickshell.clipboardText = item.emoji; root.closeAll(); }
                     });
                 }
-                if (results.length > 50) break;
             }
+            emojiResults.sort((a, b) => {
+                const aStarts = a.name.toLowerCase().startsWith(emojiQuery);
+                const bStarts = b.name.toLowerCase().startsWith(emojiQuery);
+                if (aStarts && !bStarts) return -1;
+                if (!aStarts && bStarts) return 1;
+                return a.name.localeCompare(b.name);
+            });
+            results.push(...emojiResults.slice(0, 50));
         } else if (strippedQuery.startsWith(Config.options.search.clipboardPrefix)) {
             const clipQuery = strippedQuery.slice(Config.options.search.clipboardPrefix.length).toLowerCase().trim();
+            const clipResults = [];
             for (const entryObj of clipboardHistory) {
                 const entry = entryObj.raw;
-                if (entry.toLowerCase().includes(clipQuery) || clipQuery === "") {
-                    const cleanName = entry.replace(/^\d+\t/, "").trim();
+                const cleanName = entry.replace(/^\d+\t/, "").trim();
+                if (cleanName.toLowerCase().includes(clipQuery) || clipQuery === "") {
                     const thumbPath = entryObj.isImage ? (root.clipboardThumbnailDir + "/" + entryObj.id + ".png") : "";
-                    results.push({
+                    clipResults.push({
                         name: entryObj.isImage ? "Clipboard Image" : "Clipboard Entry",
                         subtitle: cleanName, rawValue: entry, id: "clip-" + entryObj.id, icon: entryObj.isImage ? "image" : "content_paste",
                         isPlugin: true, isImage: entryObj.isImage, imagePath: thumbPath, category: "Command", emoji: "",
@@ -385,15 +394,42 @@ Singleton {
                         }
                     });
                 }
-                if (results.length > 50) break;
             }
+            clipResults.sort((a, b) => {
+                const aStarts = a.subtitle.toLowerCase().startsWith(clipQuery);
+                const bStarts = b.subtitle.toLowerCase().startsWith(clipQuery);
+                if (aStarts && !bStarts) return -1;
+                if (!aStarts && bStarts) return 1;
+                return 0; // Maintain cliphist order if prefix match is the same
+            });
+            results.push(...clipResults.slice(0, 50));
         } else if (strippedQuery.startsWith(Config.options.search.commandPrefix)) {
             const cmdQuery = strippedQuery.slice(Config.options.search.commandPrefix.length).toLowerCase().trim();
+            const cmdResults = [];
             for (const cmd of root.quickCommands) {
-                if (cmd.name.toLowerCase().includes(cmdQuery) || cmd.id.toLowerCase().includes(cmdQuery) || cmdQuery === "") results.push(cmd);
+                if (cmd.name.toLowerCase().includes(cmdQuery) || cmd.id.toLowerCase().includes(cmdQuery) || cmdQuery === "") {
+                    cmdResults.push(cmd);
+                }
             }
+            cmdResults.sort((a, b) => {
+                const aStarts = a.name.toLowerCase().startsWith(cmdQuery);
+                const bStarts = b.name.toLowerCase().startsWith(cmdQuery);
+                if (aStarts && !bStarts) return -1;
+                if (!aStarts && bStarts) return 1;
+                return a.name.localeCompare(b.name);
+            });
+            results.push(...cmdResults);
         } else if (strippedQuery.startsWith(Config.options.search.filePrefix)) {
-            results.push(...fileSearchProc.results);
+            const fileQuery = strippedQuery.slice(Config.options.search.filePrefix.length).toLowerCase().trim();
+            const fileResults = fileSearchProc.results.slice();
+            fileResults.sort((a, b) => {
+                const aStarts = a.name.toLowerCase().startsWith(fileQuery);
+                const bStarts = b.name.toLowerCase().startsWith(fileQuery);
+                if (aStarts && !bStarts) return -1;
+                if (!aStarts && bStarts) return 1;
+                return a.name.localeCompare(b.name);
+            });
+            results.push(...fileResults);
             if (fileSearchProc.results.length === 0 && strippedQuery.length > 1) {
                  results.push({
                     name: "Searching Files...", subtitle: "Please wait", id: "file-searching", icon: "search", isPlugin: true, category: "Command", emoji: "", execute: () => {}
@@ -406,7 +442,23 @@ Singleton {
             const filteredApps = allApps.filter(app =>
                 app.name.toLowerCase().includes(loweredQuery) ||
                 app.id.toLowerCase().includes(loweredQuery)
-            );
+            ).sort((a, b) => {
+                const nameA = a.name.toLowerCase();
+                const nameB = b.name.toLowerCase();
+                const aStarts = nameA.startsWith(loweredQuery);
+                const bStarts = nameB.startsWith(loweredQuery);
+
+                if (aStarts && !bStarts) return -1;
+                if (!aStarts && bStarts) return 1;
+
+                if (Config.options.search.enableUsageTracking) {
+                    const countA = root.usageData[a.id] || 0;
+                    const countB = root.usageData[b.id] || 0;
+                    if (countB !== countA) return countB - countA;
+                }
+                
+                return nameA.localeCompare(nameB);
+            });
             results.push(...filteredApps);
         }
 

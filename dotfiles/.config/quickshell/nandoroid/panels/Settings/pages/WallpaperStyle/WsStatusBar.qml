@@ -305,7 +305,7 @@ ColumnLayout {
                         }
                     }
 
-                    // ── Workspace Style ──
+                    // ── Workspace Style (Shape) ──
                     SegmentedWrapper {
                         Layout.fillWidth: true
                         implicitHeight: wsStyleRow.implicitHeight + 36
@@ -318,15 +318,13 @@ ColumnLayout {
                             anchors.margins: 16
                             spacing: 16
                             MaterialSymbol { text: "layers"; iconSize: 24; color: Appearance.colors.colPrimary }
-                            StyledText { text: "Workspace Style"; Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
+                            StyledText { text: "Indicator Shape"; Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
                             RowLayout {
                                 spacing: 2
                                 Repeater {
                                     model: [
                                         { id: "pill", label: "Pill" },
-                                        { id: "numbers", label: "Numeric" },
-                                        { id: "japanese", label: "Japanese" },
-                                        { id: "roman", label: "Roman" }
+                                        { id: "unified", label: "Unified" }
                                     ]
                                     delegate: SegmentedButton {
                                         required property var modelData
@@ -339,6 +337,46 @@ ColumnLayout {
                                         colInactive: Appearance.m3colors.m3surfaceContainerLow
                                         onClicked: if (Config.ready && Config.options.workspaces)
                                             Config.options.workspaces.indicatorStyle = modelData.id
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    // ── Workspace Style (Label) ──
+                    SegmentedWrapper {
+                        Layout.fillWidth: true
+                        implicitHeight: wsLabelRow.implicitHeight + 36
+                        orientation: Qt.Vertical
+                        maxRadius: 20
+                        color: Appearance.m3colors.m3surfaceContainerHigh
+                        RowLayout {
+                            id: wsLabelRow
+                            anchors.fill: parent
+                            anchors.margins: 16
+                            spacing: 16
+                            MaterialSymbol { text: "format_list_numbered"; iconSize: 24; color: Appearance.colors.colPrimary }
+                            StyledText { text: "Indicator Label"; Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
+                            RowLayout {
+                                spacing: 2
+                                Repeater {
+                                    model: [
+                                        { id: "none", label: "None" },
+                                        { id: "numeric", label: "Numeric" },
+                                        { id: "japanese", label: "Japanese" },
+                                        { id: "roman", label: "Roman" }
+                                    ]
+                                    delegate: SegmentedButton {
+                                        required property var modelData
+                                        buttonText: modelData.label
+                                        isHighlighted: Config.ready && Config.options.workspaces
+                                            ? (Config.options.workspaces.indicatorLabel ?? "none") === modelData.id
+                                            : modelData.id === "none"
+                                        colActive: Appearance.m3colors.m3primary
+                                        colActiveText: Appearance.m3colors.m3onPrimary
+                                        colInactive: Appearance.m3colors.m3surfaceContainerLow
+                                        onClicked: if (Config.ready && Config.options.workspaces)
+                                            Config.options.workspaces.indicatorLabel = modelData.id
                                     }
                                 }
                             }

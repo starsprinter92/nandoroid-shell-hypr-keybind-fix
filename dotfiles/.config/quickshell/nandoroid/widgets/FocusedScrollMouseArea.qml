@@ -8,7 +8,7 @@ MouseArea {
     signal layoutCycle()
     signal movedAway()
 
-    property bool hovered: false
+    readonly property bool hovered: containsMouse
     property real lastScrollX: 0
     property real lastScrollY: 0
     property bool trackingScroll: false
@@ -17,12 +17,7 @@ MouseArea {
     acceptedButtons: Qt.LeftButton | Qt.MiddleButton
     hoverEnabled: true
 
-    onEntered: {
-        root.hovered = true;
-    }
-
     onExited: {
-        root.hovered = false;
         root.trackingScroll = false;
     }
 

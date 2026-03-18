@@ -59,6 +59,8 @@ Item {
         anchors.bottom: parent.bottom
         width: parent.width * 0.35
         cursorShape: Qt.PointingHandCursor
+        preventStealing: true
+        propagateComposedEvents: true
         onClicked: {
             GlobalStates.activeScreen = root.QsWindow.window.screen;
             GlobalStates.notificationCenterOpen = !GlobalStates.notificationCenterOpen;
@@ -87,6 +89,8 @@ Item {
         anchors.bottom: parent.bottom
         width: parent.width * 0.35
         cursorShape: Qt.PointingHandCursor
+        preventStealing: true
+        propagateComposedEvents: true
         onClicked: {
             GlobalStates.activeScreen = root.QsWindow.window.screen;
             GlobalStates.quickSettingsOpen = !GlobalStates.quickSettingsOpen;

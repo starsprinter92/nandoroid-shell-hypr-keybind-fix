@@ -9,6 +9,7 @@ import Quickshell
 Item {
     id: root
     property color color: Appearance.colors.colStatusBarText
+    visible: Battery.available
     
     readonly property var chargeState: Battery.chargeState
     readonly property bool isCharging: Battery.isCharging

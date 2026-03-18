@@ -300,6 +300,7 @@ MouseArea {
 
                 // Battery
                 BatteryIndicator {
+                    visible: Battery.available
                     Layout.alignment: Qt.AlignVCenter
                     color: Appearance.colors.colStatusBarText
                 }

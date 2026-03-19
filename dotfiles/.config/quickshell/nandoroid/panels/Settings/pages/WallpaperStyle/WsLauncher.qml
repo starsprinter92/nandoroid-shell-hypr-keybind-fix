@@ -116,7 +116,7 @@ ColumnLayout {
                             readonly property bool isSelected: Config.ready && Config.options.search && Config.options.search.iconShape === modelData
                             
                             buttonRadius: isSelected ? 14 : 28
-                            colBackground: isSelected ? Appearance.m3colors.m3primaryContainer : Appearance.m3colors.m3surfaceContainerHigh
+                            colBackground: isSelected ? Appearance.colors.colPrimary : Appearance.m3colors.m3surfaceContainerHigh
                             colRipple: Appearance.m3colors.m3primary
                             
                             onClicked: if (Config.ready && Config.options.search) Config.options.search.iconShape = modelData
@@ -129,14 +129,14 @@ ColumnLayout {
                                     Layout.preferredWidth: 32
                                     Layout.preferredHeight: 32
                                     shapeString: modelData
-                                    color: shapeBtn.isSelected ? Appearance.colors.colNotchText : Appearance.m3colors.m3onSurfaceVariant
+                                    color: shapeBtn.isSelected ? Appearance.colors.colOnPrimary : Appearance.m3colors.m3onSurfaceVariant
                                 }
                                 StyledText {
                                     Layout.alignment: Qt.AlignHCenter
                                     text: modelData
                                     font.pixelSize: 10
                                     font.weight: shapeBtn.isSelected ? Font.Bold : Font.Normal
-                                    color: shapeBtn.isSelected ? Appearance.colors.colNotchText : Appearance.m3colors.m3onSurface
+                                    color: shapeBtn.isSelected ? Appearance.colors.colOnPrimary : Appearance.m3colors.m3onSurface
                                 }
                             }
                         }

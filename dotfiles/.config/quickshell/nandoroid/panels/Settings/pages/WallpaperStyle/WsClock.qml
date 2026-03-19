@@ -120,7 +120,7 @@ ColumnLayout {
                                     }
                                 }
                                 
-                                colBackground: isSelected ? Appearance.m3colors.m3primaryContainer : Appearance.m3colors.m3surfaceContainerLow
+                                colBackground: isSelected ? Appearance.colors.colPrimary : Appearance.m3colors.m3surfaceContainerLow
                                 colRipple: Appearance.m3colors.m3primary
                                 
                                 onClicked: {
@@ -144,14 +144,14 @@ ColumnLayout {
                                         Layout.alignment: Qt.AlignHCenter
                                         text: modelData.icon
                                         iconSize: 24
-                                        color: clockStyleBtn.isSelected ? Appearance.m3colors.m3onPrimaryContainer : Appearance.m3colors.m3onSurfaceVariant
+                                        color: clockStyleBtn.isSelected ? Appearance.colors.colOnPrimary : Appearance.m3colors.m3onSurfaceVariant
                                     }
                                     StyledText {
                                         Layout.alignment: Qt.AlignHCenter
                                         text: modelData.name
                                         font.pixelSize: 12
                                         font.weight: clockStyleBtn.isSelected ? Font.Bold : Font.Normal
-                                        color: clockStyleBtn.isSelected ? Appearance.m3colors.m3onPrimaryContainer : Appearance.m3colors.m3onSurface
+                                        color: clockStyleBtn.isSelected ? Appearance.colors.colOnPrimary : Appearance.m3colors.m3onSurface
                                     }
                                 }
                             }

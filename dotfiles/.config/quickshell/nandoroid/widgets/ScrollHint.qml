@@ -9,7 +9,12 @@ Revealer { // Scroll hint
     property string tooltipText: ""
     property bool hovered: false
     property color color: Appearance.colors.colStatusBarText
-    reveal: hovered
+    
+    // Safety check for panel states
+    readonly property bool anyPanelOpen: GlobalStates.notificationCenterOpen || GlobalStates.quickSettingsOpen || GlobalStates.dashboardOpen || GlobalStates.overviewOpen
+    
+    // Only show if hovered, no panel is covering it, and screen is NOT locked
+    reveal: hovered && !anyPanelOpen && !GlobalStates.screenLocked
     
     MouseArea {
         id: mouseArea

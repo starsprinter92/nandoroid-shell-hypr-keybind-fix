@@ -363,6 +363,9 @@ Singleton {
                 property bool useSeparateWallpaper: false
                 property bool showCava: true
                 property bool showMediaCard: true
+                property JsonObject weather: JsonObject {
+                    property string textColorMode: "adaptive" // adaptive, light, dark
+                }
                 property JsonObject security: JsonObject {
                     property bool requirePasswordToPower: true
                 }

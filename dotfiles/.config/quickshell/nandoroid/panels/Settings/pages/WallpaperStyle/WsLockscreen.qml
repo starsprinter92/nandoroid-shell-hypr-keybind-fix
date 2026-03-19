@@ -84,6 +84,45 @@ ColumnLayout {
                             }
                         }
                     }
+
+                    // ── Weather text color mode ────────────
+                    SegmentedWrapper {
+                        Layout.fillWidth: true
+                        implicitHeight: weatherTextRow.implicitHeight + 36
+                        orientation: Qt.Vertical
+                        maxRadius: 20
+                        color: Appearance.m3colors.m3surfaceContainerHigh
+                        RowLayout {
+                            id: weatherTextRow
+                            anchors.fill: parent
+                            anchors.margins: 16
+                            spacing: 16
+                            MaterialSymbol { text: "palette"; iconSize: 24; color: Appearance.colors.colPrimary }
+                            StyledText { text: "Weather text color"; Layout.fillWidth: true; color: Appearance.colors.colOnLayer1 }
+                            RowLayout {
+                                spacing: 2
+                                Repeater {
+                                    model: [
+                                        { id: "adaptive", label: "Adaptive" },
+                                        { id: "light",    label: "Light" },
+                                        { id: "dark",     label: "Dark" }
+                                    ]
+                                    delegate: SegmentedButton {
+                                        required property var modelData
+                                        buttonText: modelData.label
+                                        isHighlighted: Config.ready && Config.options.lock && Config.options.lock.weather
+                                            ? Config.options.lock.weather.textColorMode === modelData.id
+                                            : modelData.id === "adaptive"
+                                        colActive: Appearance.m3colors.m3primary
+                                        colActiveText: Appearance.m3colors.m3onPrimary
+                                        colInactive: Appearance.m3colors.m3surfaceContainerLow
+                                        onClicked: if (Config.ready && Config.options.lock && Config.options.lock.weather)
+                                            Config.options.lock.weather.textColorMode = modelData.id
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
     

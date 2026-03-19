@@ -6,6 +6,7 @@ import "../../core/functions" as Functions
 import QtQuick
 import QtQuick.Layouts
 import Quickshell
+import Quickshell.Hyprland
 import Quickshell.Services.UPower
 import Qt5Compat.GraphicalEffects
 import "../NotificationCenter"
@@ -24,6 +25,11 @@ MouseArea {
     required property LockContext context
 
     readonly property bool requirePasswordToPower: Config.options.lock?.security?.requirePasswordToPower ?? true
+
+    // Monitor detection for adaptive colors/background
+    readonly property var screen: root.QsWindow.window ? root.QsWindow.window.screen : null
+    readonly property int monitorIndex: screen ? screen.index : 0
+    readonly property HyprlandMonitor monitor: Hyprland.monitorFor(screen)
 
     function forceFieldFocus() { passwordInput.forceActiveFocus() }
     Connections {
@@ -127,13 +133,32 @@ MouseArea {
         readonly property real sidePadding: isCentered ? Math.round((parent.width - Math.min(centeredWidth, parent.width - 40)) / 2) : 12
         readonly property int cornerRadius: (Config.ready && Config.options.statusBar?.backgroundCornerRadius) || 20
 
+        // Adaptive background detection
+        readonly property int bgStyle: (Config.ready && Config.options.statusBar) ? (Config.options.statusBar.backgroundStyle ?? 0) : 0
+        readonly property int activeWorkspaceId: root.monitor?.activeWorkspace?.id ?? -1
+        readonly property bool hasTiledWindows: {
+            if (bgStyle !== 2 || activeWorkspaceId === -1) return false;
+            return HyprlandData.windowList.some(w => 
+                w.workspace.id === activeWorkspaceId && 
+                !w.floating && 
+                w.monitor === root.monitorIndex
+            );
+        }
+
+        // Selection of the final color based on actual visibility
+        property color contentColor: barBg.showBg ? Appearance.m3colors.m3onSurface : Appearance.colors.colStatusBarText
+        property color subtextColor: barBg.showBg ? Appearance.m3colors.m3onSurfaceVariant : Appearance.colors.colStatusBarSubtext
+
+        Behavior on contentColor { ColorAnimation { duration: 300 } }
+        Behavior on subtextColor { ColorAnimation { duration: 300 } }
+
         // 1. Solid background (follows system config)
         Rectangle {
             id: barBg
             anchors.top: parent.top
             anchors.horizontalCenter: parent.horizontalCenter
             
-            readonly property bool showBg: (Config.ready && Config.options.statusBar?.backgroundStyle !== 0)
+            readonly property bool showBg: (lockStatusBarContainer.bgStyle === 1) || (lockStatusBarContainer.bgStyle === 2 && lockStatusBarContainer.hasTiledWindows)
             
             width: (lockStatusBarContainer.isCentered && showBg) ? Math.min(lockStatusBarContainer.centeredWidth, parent.width - 40) : parent.width
             height: parent.height + (lockStatusBarContainer.isCentered && showBg ? lockStatusBarContainer.cornerRadius : 0)
@@ -190,7 +215,9 @@ MouseArea {
             }
             height: parent.height
             color: "transparent"
-            visible: (Config.ready && Config.options.statusBar?.backgroundStyle === 0)
+            opacity: !barBg.showBg && (Config.ready && Config.options.statusBar ? (Config.options.statusBar.useGradient ?? true) : true) ? 1.0 : 0.0
+            Behavior on opacity { NumberAnimation { duration: 300 } }
+            
             gradient: Gradient {
                 GradientStop { position: 0.0; color: Appearance.colors.colStatusBarGradientStart }
                 GradientStop { position: 1.0; color: Appearance.colors.colStatusBarGradientEnd }
@@ -270,7 +297,7 @@ MouseArea {
                     text: SystemInfo.username + "  •  " + (Network.wifiEnabled ? (Network.networkName || "Offline") : "WiFi Off")
                     font.pixelSize: 14
                     font.weight: Font.Medium
-                    color: Appearance.colors.colStatusBarText
+                    color: lockStatusBarContainer.contentColor
                 }
             }
 
@@ -291,7 +318,7 @@ MouseArea {
                         text: "notifications_active"
                         iconSize: 16
                         fill: 1
-                        color: Appearance.colors.colStatusBarText
+                        color: lockStatusBarContainer.contentColor
                     }
                     Rectangle {
                         anchors.top: parent.top
@@ -308,7 +335,7 @@ MouseArea {
                             text: Notifications.unread > 99 ? "99+" : Notifications.unread.toString()
                             font.pixelSize: 8
                             font.weight: Font.Bold
-                            color: Appearance.colors.colLayer0
+                            color: barBg.showBg ? Appearance.m3colors.m3surface : Appearance.colors.colLayer0
                         }
                     }
                 }
@@ -318,7 +345,7 @@ MouseArea {
                     text: Network.materialSymbol
                     iconSize: 16
                     fill: 1
-                    color: Appearance.colors.colStatusBarText
+                    color: lockStatusBarContainer.contentColor
                 }
 
                 // Bluetooth
@@ -327,14 +354,14 @@ MouseArea {
                     text: BluetoothStatus.materialSymbol
                     iconSize: 16
                     fill: BluetoothStatus.connected ? 1 : 0
-                    color: Appearance.colors.colStatusBarText
+                    color: lockStatusBarContainer.contentColor
                 }
 
                 // Battery
                 BatteryIndicator {
                     visible: Battery.available
                     Layout.alignment: Qt.AlignVCenter
-                    color: Appearance.colors.colStatusBarText
+                    color: lockStatusBarContainer.contentColor
                 }
 
                 // DND Indicator
@@ -343,7 +370,7 @@ MouseArea {
                     text: "notifications_paused"
                     iconSize: 16
                     fill: 1
-                    color: Appearance.colors.colStatusBarText
+                    color: lockStatusBarContainer.contentColor
                 }
             }
 
@@ -372,7 +399,7 @@ MouseArea {
             x: 0; y: 0 // Override NandoClock's internal x/y centering
         }
 
-        // Weather
+        // Weather (Adaptive color)
         ColumnLayout {
             anchors.horizontalCenter: parent.horizontalCenter
             spacing: 6
@@ -392,7 +419,7 @@ MouseArea {
                     text: Weather.current.temp + "°"
                     font.pixelSize: 32
                     font.weight: Font.Medium
-                    color: Appearance.colors.colStatusBarText
+                    color: Appearance.colors.colLockscreenWeatherText
                     Layout.alignment: Qt.AlignVCenter
                 }
             }
@@ -402,8 +429,7 @@ MouseArea {
                 text: Weather.current.condition
                 font.pixelSize: 15
                 font.weight: Font.Normal
-                color: Appearance.colors.colStatusBarText
-                opacity: 0.85
+                color: Appearance.colors.colLockscreenWeatherSubtext
             }
         }
     }

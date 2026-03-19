@@ -191,6 +191,20 @@ Singleton {
         property color colLockscreenClock: lockscreenDarkText ? "#1E1E1E" : "#F5F5F5"
         property color colLockscreenDate: Functions.ColorUtils.applyAlpha(colLockscreenClock, 0.8)
 
+        // Lockscreen Weather Text (follows adaptive/light/dark config)
+        readonly property bool resolvedLockscreenWeatherDarkText: {
+            if (!Config.ready || !Config.options.lock?.weather) return lockscreenDarkText;
+            const mode = Config.options.lock.weather.textColorMode ?? "adaptive";
+            if (mode === "dark") return true;
+            if (mode === "light") return false;
+            return lockscreenDarkText; // adaptive
+        }
+        property color colLockscreenWeatherText: resolvedLockscreenWeatherDarkText ? "#1E1E1E" : "#F5F5F5"
+        property color colLockscreenWeatherSubtext: Functions.ColorUtils.applyAlpha(colLockscreenWeatherText, 0.8)
+
+        Behavior on colLockscreenWeatherText { ColorAnimation { duration: 300 } }
+        Behavior on colLockscreenWeatherSubtext { ColorAnimation { duration: 300 } }
+
         // Notch specific (always dark context)
         property color colNotchText: "#E2E2E2" // Modern M3 off-white
         property color colNotchSubtext: Functions.ColorUtils.applyAlpha("#E2E2E2", 0.7)

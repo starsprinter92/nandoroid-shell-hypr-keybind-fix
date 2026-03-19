@@ -19,6 +19,7 @@ Singleton {
     property string lastQuery: ""
     property int totalResults: 0
     property int currentPage: 1
+    property string errorMessage: ""
 
     ListModel {
         id: wallhavenModel
@@ -30,6 +31,7 @@ Singleton {
         root.loading = true;
         root.lastQuery = query;
         root.currentPage = page;
+        root.errorMessage = "";
 
         if (page === 1) {
             wallhavenModel.clear();
@@ -72,10 +74,20 @@ Singleton {
                         }
                     } catch (e) {
                         console.error("[Wallhaven] Parse error:", e);
+                        root.errorMessage = "Failed to parse response";
                     }
+                } else if (xhr.status === 429) {
+                    root.errorMessage = "Too many requests. Please wait...";
+                } else {
+                    root.errorMessage = "Server error (" + xhr.status + ")";
                 }
                 root.searchFinished();
             }
+        };
+        xhr.onerror = function() {
+            root.loading = false;
+            root.errorMessage = "Network error. Check connection.";
+            root.searchFinished();
         };
         xhr.send();
     }

@@ -169,7 +169,7 @@ Variants {
                 anchors.fill: parent
                 active: popupWindow.isFull
                 visible: popupWindow.isFull
-                sourceComponent: NotificationCenter.MediaCard {
+                sourceComponent: MediaCard {
                     // Force a slightly different styling if needed
                     radius: Appearance.rounding.button
                 }

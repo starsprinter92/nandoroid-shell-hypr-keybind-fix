@@ -1,7 +1,7 @@
-import "../../core"
-import "../../services"
-import "../../widgets"
-import "../../core/functions" as Functions
+import "../core"
+import "../services"
+import "."
+import "../core/functions" as Functions
 import QtQuick
 import QtQuick.Layouts
 import Qt5Compat.GraphicalEffects

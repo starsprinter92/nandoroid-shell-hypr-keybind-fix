@@ -46,3 +46,5 @@ DesktopContextMenu DesktopContextMenu.qml
 SearchHandler SearchHandler.qml
 UserProfile UserProfile.qml
 WaveVisualizer WaveVisualizer.qml
+MediaCard MediaCard.qml
+WeatherCard WeatherCard.qml

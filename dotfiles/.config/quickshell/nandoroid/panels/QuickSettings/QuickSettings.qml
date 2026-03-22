@@ -40,7 +40,7 @@ Variants {
 
         WlrLayershell.margins {
             right: panelWindow.sidePadding
-            top: Appearance.sizes.statusBarHeight + (8 * Appearance.effectiveScale)
+            top: 4 * Appearance.effectiveScale
         }
 
         implicitWidth: content.implicitWidth

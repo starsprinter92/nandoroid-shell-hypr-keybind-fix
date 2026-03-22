@@ -28,14 +28,14 @@ Variants {
         // Positioning: Center top, below status bar
         WlrLayershell.layer: WlrLayer.Top
         WlrLayershell.namespace: "nandoroid:media-hud"
-        exclusionMode: ExclusionMode.Ignore
+        exclusiveZone: 0
 
         anchors {
             top: true
         }
 
         WlrLayershell.margins {
-            top: Appearance.sizes.statusBarHeight + (4 * Appearance.effectiveScale)
+            top: 4 * Appearance.effectiveScale
         }
 
         // Responsive window width

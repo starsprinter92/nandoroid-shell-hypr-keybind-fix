@@ -86,8 +86,8 @@ Variants {
                     when: (!GlobalStates.notificationCenterOpen || !isActive)
                     PropertyChanges { target: contentLoader; opacity: 0 }
                     PropertyChanges { target: contentTransform; 
-                        x: panelWindow.isCentered ? 0 : -contentLoader.width - 40;
-                        y: panelWindow.isCentered ? -contentLoader.height - 40 : 0;
+                        x: panelWindow.isCentered ? 0 : -contentLoader.width - 40 * Appearance.effectiveScale;
+                        y: panelWindow.isCentered ? -contentLoader.height - 40 * Appearance.effectiveScale : 0;
                     }
                 }
             ]

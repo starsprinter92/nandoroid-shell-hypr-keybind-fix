@@ -30,8 +30,8 @@ Variants {
         color: "transparent"
 
         readonly property bool isCentered: (Config.ready && Config.options.statusBar) ? Config.options.statusBar.layoutStyle === "centered" : false
-        readonly property real centeredWidth: (Config.ready && Config.options.statusBar) ? Config.options.statusBar.centeredWidth : 1200
-        readonly property real sidePadding: isCentered ? Math.round((modelData.width - Math.min(centeredWidth, modelData.width - 40)) / 2) : 0
+        readonly property real centeredWidth: (Config.ready && Config.options.statusBar) ? Config.options.statusBar.centeredWidth * Appearance.effectiveScale : 1200 * Appearance.effectiveScale
+        readonly property real sidePadding: isCentered ? Math.round((modelData.width - Math.min(centeredWidth, modelData.width - 40 * Appearance.effectiveScale)) / 2) : 0
 
         anchors {
             top: true
@@ -40,6 +40,7 @@ Variants {
 
         WlrLayershell.margins {
             left: panelWindow.sidePadding
+            top: Appearance.sizes.statusBarHeight + (8 * Appearance.effectiveScale)
         }
 
         implicitWidth: contentLoader.item ? contentLoader.item.implicitWidth : 0

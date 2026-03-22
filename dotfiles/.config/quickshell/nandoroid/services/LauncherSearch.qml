@@ -203,10 +203,16 @@ Singleton {
     Connections {
         target: GlobalStates
         function onLauncherOpenChanged() {
-            if (GlobalStates.launcherOpen && allApps.length === 0) triggerUpdate()
+            if (GlobalStates.launcherOpen) {
+                if (allApps.length === 0) triggerUpdate();
+                cliphistProc.running = true;
+            }
         }
         function onSpotlightOpenChanged() {
-            if (GlobalStates.spotlightOpen && allApps.length === 0) triggerUpdate()
+            if (GlobalStates.spotlightOpen) {
+                if (allApps.length === 0) triggerUpdate();
+                cliphistProc.running = true;
+            }
         }
     }
 
@@ -395,13 +401,20 @@ Singleton {
                     });
                 }
             }
-            clipResults.sort((a, b) => {
-                const aStarts = a.subtitle.toLowerCase().startsWith(clipQuery);
-                const bStarts = b.subtitle.toLowerCase().startsWith(clipQuery);
-                if (aStarts && !bStarts) return -1;
-                if (!aStarts && bStarts) return 1;
-                return 0; // Maintain cliphist order if prefix match is the same
-            });
+            if (clipQuery !== "") {
+                clipResults.sort((a, b) => {
+                    const aStarts = a.subtitle.toLowerCase().startsWith(clipQuery);
+                    const bStarts = b.subtitle.toLowerCase().startsWith(clipQuery);
+                    if (aStarts && !bStarts) return -1;
+                    if (!aStarts && bStarts) return 1;
+                    
+                    // If both start with query or both don't, maintain chronological order
+                    // We use the numeric ID from cliphist (higher is newer)
+                    const idA = parseInt(a.id.replace("clip-", ""));
+                    const idB = parseInt(b.id.replace("clip-", ""));
+                    return idB - idA;
+                });
+            }
             results.push(...clipResults.slice(0, 50));
         } else if (strippedQuery.startsWith(Config.options.search.commandPrefix)) {
             const cmdQuery = strippedQuery.slice(Config.options.search.commandPrefix.length).toLowerCase().trim();

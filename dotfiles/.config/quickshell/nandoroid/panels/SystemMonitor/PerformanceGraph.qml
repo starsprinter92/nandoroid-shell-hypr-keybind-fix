@@ -17,7 +17,7 @@ Item {
     implicitWidth: 200
     implicitHeight: 60
     property real fillOpacity: 0.1
-    property real lineWidth: 2
+    property real lineWidth: 2 * Appearance.effectiveScale
     property bool inverted: false
     
     onHistoryChanged: canvas.requestPaint()

@@ -223,7 +223,7 @@ Item {
                 bottomRightRadius: Appearance.rounding.large
 
                 // MD3 Outline Style (Active when not fused with status bar)
-                border.width: root.showShoulders ? 0 : 1
+                border.width: root.showShoulders ? 0 : Math.max(1, 1 * Appearance.effectiveScale)
                 border.color: Functions.ColorUtils.applyAlpha(Appearance.m3colors.m3onSurface, 0.12)
 
                 // Prevent clicks inside the panel from falling through to the background closer

@@ -11,7 +11,7 @@ Row {
     id: root
     spacing: 2 * Appearance.effectiveScale
     property color barColor: Appearance.m3colors.m3primary
-    property int barWidth: Math.max(1, 4 * Appearance.effectiveScale)
+    property int barWidth: Math.max(1, (width - (spacing * (barCount - 1))) / barCount)
     property int maxHeight: 40 * Appearance.effectiveScale
     property int barCount: CavaService.barCount
     height: maxHeight

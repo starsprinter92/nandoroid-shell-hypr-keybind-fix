@@ -253,6 +253,7 @@ Singleton {
             property JsonObject quickSettings: JsonObject {
                 property bool caffeineActive: false
                 property bool showPerformanceStats: true
+                property string quickActionsPosition: "top" // top or bottom
                 property list<var> toggles: [
                     { "type": "wifi", "size": 2 },
                     { "type": "bluetooth", "size": 2 },
@@ -352,6 +353,7 @@ Singleton {
                 property string clipboardPrefix: ";"
                 property string filePrefix: "?"
                 property string commandPrefix: ">"
+                property string toolsPrefix: "."
                 property string iconShape: "Square"
                 property bool enableGrouping: false
                 property bool enableUsageTracking: true

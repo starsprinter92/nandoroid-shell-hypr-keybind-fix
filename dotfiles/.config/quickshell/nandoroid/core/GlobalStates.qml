@@ -16,6 +16,7 @@ Singleton {
     property bool statusBarVisible: true
     property bool notificationCenterOpen: false
     property bool quickSettingsOpen: false
+    property bool quickActionsOpen: false
     property bool sessionOpen: false
     property bool quickSettingsEditMode: false
     property bool wallpaperSelectorOpen: false
@@ -81,6 +82,7 @@ Singleton {
     onNotificationCenterOpenChanged: {
         if (notificationCenterOpen) {
             quickSettingsOpen = false
+            quickActionsOpen = false
             launcherOpen = false
             spotlightOpen = false
             quickWallpaperOpen = false
@@ -92,6 +94,19 @@ Singleton {
     onQuickSettingsOpenChanged: {
         if (quickSettingsOpen) {
             notificationCenterOpen = false
+            quickActionsOpen = false
+            launcherOpen = false
+            spotlightOpen = false
+            quickWallpaperOpen = false
+            dashboardOpen = false
+            sessionOpen = false
+        }
+    }
+
+    onQuickActionsOpenChanged: {
+        if (quickActionsOpen) {
+            notificationCenterOpen = false
+            quickSettingsOpen = false
             launcherOpen = false
             spotlightOpen = false
             quickWallpaperOpen = false
@@ -115,6 +130,7 @@ Singleton {
         if (settingsOpen) {
             notificationCenterOpen = false
             quickSettingsOpen = false
+            quickActionsOpen = false
             launcherOpen = false
             spotlightOpen = false
             quickWallpaperOpen = false
@@ -127,6 +143,7 @@ Singleton {
         if (quickWallpaperOpen) {
             notificationCenterOpen = false
             quickSettingsOpen = false
+            quickActionsOpen = false
             launcherOpen = false
             spotlightOpen = false
             dashboardOpen = false
@@ -138,6 +155,7 @@ Singleton {
         if (dashboardOpen) {
             notificationCenterOpen = false
             quickSettingsOpen = false
+            quickActionsOpen = false
             launcherOpen = false
             spotlightOpen = false
             quickWallpaperOpen = false
@@ -149,6 +167,7 @@ Singleton {
         if (systemMonitorOpen) {
             notificationCenterOpen = false
             quickSettingsOpen = false
+            quickActionsOpen = false
             launcherOpen = false
             spotlightOpen = false
             quickWallpaperOpen = false
@@ -161,6 +180,7 @@ Singleton {
         if (spotlightOpen) {
             notificationCenterOpen = false
             quickSettingsOpen = false
+            quickActionsOpen = false
             launcherOpen = false
             quickWallpaperOpen = false
             dashboardOpen = false
@@ -172,6 +192,7 @@ Singleton {
         if (sessionOpen) {
             notificationCenterOpen = false
             quickSettingsOpen = false
+            quickActionsOpen = false
             launcherOpen = false
             spotlightOpen = false
             quickWallpaperOpen = false
@@ -189,6 +210,7 @@ Singleton {
         if (overviewOpen) {
             notificationCenterOpen = false
             quickSettingsOpen = false
+            quickActionsOpen = false
             launcherOpen = false
             spotlightOpen = false
             quickWallpaperOpen = false
@@ -202,6 +224,7 @@ Singleton {
     function closeAllPanels() {
         notificationCenterOpen = false
         quickSettingsOpen = false
+        quickActionsOpen = false
         launcherOpen = false
         spotlightOpen = false
         settingsOpen = false

@@ -18,7 +18,8 @@ Singleton {
         CharRecognition,
         Record,
         RecordWithSound,
-        RecordFullscreenWithSound
+        RecordFullscreenWithSound,
+        QRCode
     }
 
     property string imageSearchEngineBaseUrl: (Config.ready && Config.options?.search?.imageSearch?.imageSearchEngineBaseUrl) ? Config.options.search.imageSearch.imageSearchEngineBaseUrl : "https://lens.google.com/uploadbyurl?url="
@@ -85,6 +86,9 @@ Singleton {
             
             case ScreenshotAction.Action.RecordFullscreenWithSound:
                 return ["bash", "-c", `'${recordScript}' --fullscreen --sound`]
+
+            case ScreenshotAction.Action.QRCode:
+                return ["bash", "-c", `${cropInPlace} && zbarimg --raw '${shellEscape(screenshotPath)}' | wl-copy && notify-send "QR Code" "Content copied to clipboard" && ${cleanup}`]
                 
             default:
 

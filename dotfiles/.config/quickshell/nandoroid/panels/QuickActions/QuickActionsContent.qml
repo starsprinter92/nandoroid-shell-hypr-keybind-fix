@@ -96,8 +96,24 @@ FocusScope {
             case 0: // Full Screenshot
                 root.close();
                 Functions.General.delayedAction(300, () => {
-                    const screenshotPath = `/tmp/screenshot-${Date.now()}.png`;
-                    Quickshell.execDetached(["bash", "-c", `grim "${screenshotPath}" && wl-copy < "${screenshotPath}" && notify-send "Screenshot" "Full screen captured to clipboard" && rm "${screenshotPath}"`]);
+                    const autoSave = (Config.ready && Config.options.screenshot) ? Config.options.screenshot.autoSave : true;
+                    const autoCopy = (Config.ready && Config.options.screenshot) ? Config.options.screenshot.autoCopy : true;
+                    const rawSaveDir = (Config.ready && Config.options.screenshot) ? Config.options.screenshot.savePath : "~/Pictures/Screenshots";
+                    const finalSaveDir = Functions.FileUtils.trimFileProtocol(rawSaveDir);
+                    const tempDir = Functions.FileUtils.trimFileProtocol(Directories.screenshotTemp);
+                    const tempPath = `${tempDir}/full-${Date.now()}.png`;
+                    
+                    const copyCmd = autoCopy ? ` | tee >(wl-copy)` : "";
+                    let bashCmd = "";
+                    
+                    if (autoSave) {
+                        bashCmd = `mkdir -p "${tempDir}" && mkdir -p "${finalSaveDir}" && grim - | tee "${tempPath}" ${copyCmd} > "${finalSaveDir}/Screenshot_$(date +%Y-%m-%d-%H-%M-%S).png"`;
+                    } else {
+                        bashCmd = `mkdir -p "${tempDir}" && grim - | tee "${tempPath}" ${copyCmd} > /dev/null`;
+                    }
+                    
+                    Quickshell.execDetached(["bash", "-c", bashCmd]);
+                    GlobalStates.screenshotTaken(tempPath);
                 });
                 break;
             case 1: // Region Screenshot

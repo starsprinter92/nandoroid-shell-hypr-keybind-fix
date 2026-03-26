@@ -10,6 +10,7 @@ A Quickshell-based desktop shell for Hyprland adopting Android 16 design element
 ## Key Features
 
 - **Universal Dynamic Island:** Displays media playback indicators, workspace switching, pomodoro timers, and popup notifications inside a single central notch.
+- **Android 16 Screenshot Overlay:** Modern floating preview with quick actions (Google Lens, Copy, Save, Delete) and dynamic aspect ratio thumbnails.
 - **Deep Customizability:** Extensive personalization options (clocks, lockscreen visuals, UI sizing) accessible directly via the built-in Settings panel.
 - **Auto-generated Colors:** Entire shell theme dynamically generated from your wallpaper's colors using Material 3 design tokens (via Matugen).
 - **Wallhaven Integration:** Browse, favorite, and apply thousands of high-quality wallpapers directly from the shell with infinite scroll and smart downloading.
@@ -150,6 +151,7 @@ Manage the visibility of all UI panels.
 | **Overview Panel**      | `overview`      | `toggle` | `qs -c nandoroid ipc call overview toggle`      |
 | **Session (Power)**     | `session`       | `toggle` | `qs -c nandoroid ipc call session toggle`       |
 | **Dashboard**           | `dashboard`     | `toggle` | `qs -c nandoroid ipc call dashboard toggle`     |
+| **Quick Actions**       | `quickactions`  | `toggle` | `qs -c nandoroid ipc call quickactions toggle`  |
 | **Nandoroid Settings**  | `settings`      | `toggle` | `qs -c nandoroid ipc call settings toggle`      |
 
 ### Region Tools (Screenshots & Recording)
@@ -186,6 +188,7 @@ Nandoroid uses native Quickshell Global Shortcuts for specialized tool operation
 | `spotlightCommand`      | Open Spotlight in Quick Commands | `bindd = SUPER, G, Quick commands, global, quickshell:spotlightCommand`                     |
 | `spotlightClipboard`    | Open Spotlight in Clipboard mode | `bindd = SUPER, V, Clipboard history, global, quickshell:spotlightClipboard`               |
 | `spotlightEmoji`        | Open Spotlight in Emoji mode     | `bindd = SUPER, E, Emoji picker, global, quickshell:spotlightEmoji`                        |
+| `quickActions`          | Toggle Quick Actions HUD         | `bindd = SUPER, X, Quick actions HUD, global, quickshell:quickActions`                     |
 | `regionScreenshot`      | Capture selected region          | `bindd = SUPER, S, Region screenshot, global, quickshell:regionScreenshot`                 |
 | `regionOcr`             | Extract text from region         | `bindd = SUPER SHIFT, S, Region OCR, global, quickshell:regionOcr`                         |
 | `regionSearch`          | Visual search from region        | `bindd = SUPER, Z, Visual search, global, quickshell:regionSearch`                         |

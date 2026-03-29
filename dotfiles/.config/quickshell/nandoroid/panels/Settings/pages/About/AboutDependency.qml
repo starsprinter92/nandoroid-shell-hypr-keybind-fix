@@ -13,90 +13,10 @@ ColumnLayout {
     id: dependencyRoot
     spacing: 24 * Appearance.effectiveScale
 
-    property alias isScanning: pacmanCheckProc.running
+    property alias isScanning: SysCheckService.isChecking
 
     function scanDependencies() {
-        pacmanCheckProc.running = false
-        pacmanCheckProc.running = true
-    }
-
-    Process {
-        id: pacmanCheckProc
-        command: ["bash", "-c", "pacman -Qq; echo '---FONTCHECK---'; fc-list : family"]
-        running: false
-        stdout: StdioCollector {
-            id: pacmanCollector
-            onTextChanged: {
-                if (!text) return;
-                let sections = text.split('---FONTCHECK---');
-                let pkgs = (sections[0] || '').split('\n');
-                let pkgSet = new Set(pkgs);
-                let fonts = (sections[1] || '').toLowerCase();
-                for (let i = 0; i < depModel.count; i++) {
-                    let p = depModel.get(i).packageName;
-                    let isInst = false;
-
-                    // Font-based checks (installed via git clone, not pacman)
-                    if (p === "__font_google_sans") {
-                        isInst = fonts.indexOf("google sans flex") >= 0;
-                    } else {
-                        isInst = pkgSet.has(p) || pkgSet.has(p + "-git") || pkgSet.has(p + "-bin");
-                    }
-                    
-                    // Specific Overrides for AUR/Alternate names
-                    if (p === "matugen") isInst = pkgSet.has("matugen") || pkgSet.has("matugen-bin");
-                    if (p === "bluez-utils") isInst = pkgSet.has("bluez-utils") || pkgSet.has("bluez-utils-git");
-                    if (p === "quickshell") isInst = pkgSet.has("quickshell") || pkgSet.has("quickshell-git");
-                    if (p === "dgop") isInst = pkgSet.has("dgop") || pkgSet.has("dgop-bin") || pkgSet.has("dgop-git");
-                    if (p === "ttf-material-symbols-variable-git") isInst = pkgSet.has("ttf-material-symbols-variable-git") || pkgSet.has("ttf-material-symbols-variable") || pkgSet.has("material-symbols-git");
-
-                    depModel.setProperty(i, "installed", isInst);
-                }
-            }
-        }
-    }
-
-    ListModel {
-        id: depModel
-        ListElement { displayName: "Hyprland"; packageName: "hyprland"; installed: false; desc: "Wayland compositor" }
-        ListElement { displayName: "Quickshell"; packageName: "quickshell"; installed: false; desc: "Desktop shell framework" }
-        ListElement { displayName: "Python 3"; packageName: "python"; installed: false; desc: "Terminal color application" }
-        ListElement { displayName: "Pipewire"; packageName: "pipewire"; installed: false; desc: "Audio server" }
-        ListElement { displayName: "NetworkManager"; packageName: "networkmanager"; installed: false; desc: "Network connection manager" }
-        ListElement { displayName: "BlueZ Utils"; packageName: "bluez-utils"; installed: false; desc: "Bluetooth utilities" }
-        ListElement { displayName: "Libnotify"; packageName: "libnotify"; installed: false; desc: "Desktop notifications" }
-        ListElement { displayName: "Polkit"; packageName: "polkit"; installed: false; desc: "Policy toolkit" }
-        ListElement { displayName: "XDG Portal Hyprland"; packageName: "xdg-desktop-portal-hyprland"; installed: false; desc: "Screen sharing portal" }
-        ListElement { displayName: "XDG Portal GTK"; packageName: "xdg-desktop-portal-gtk"; installed: false; desc: "File picker portal" }
-        ListElement { displayName: "dgop"; packageName: "dgop"; installed: false; desc: "System monitor daemon" }
-        ListElement { displayName: "Brightnessctl"; packageName: "brightnessctl"; installed: false; desc: "Screen brightness control" }
-        ListElement { displayName: "ddcutil"; packageName: "ddcutil"; installed: false; desc: "External monitor brightness" }
-        ListElement { displayName: "Playerctl"; packageName: "playerctl"; installed: false; desc: "Media player controller" }
-        ListElement { displayName: "Matugen"; packageName: "matugen"; installed: false; desc: "Material theme generator" }
-        ListElement { displayName: "Grim"; packageName: "grim"; installed: false; desc: "Screenshot utility" }
-        ListElement { displayName: "Slurp"; packageName: "slurp"; installed: false; desc: "Region selector" }
-        ListElement { displayName: "Wf-Recorder"; packageName: "wf-recorder"; installed: false; desc: "Screen recorder" }
-        ListElement { displayName: "ImageMagick"; packageName: "imagemagick"; installed: false; desc: "Image processing" }
-        ListElement { displayName: "Ffmpeg"; packageName: "ffmpeg"; installed: false; desc: "Multimedia framework" }
-        ListElement { displayName: "Songrec"; packageName: "songrec"; installed: false; desc: "Music recognition" }
-        ListElement { displayName: "Cava"; packageName: "cava"; installed: false; desc: "Audio visualizer" }
-        ListElement { displayName: "Easyeffects"; packageName: "easyeffects"; installed: false; desc: "Audio effects" }
-        ListElement { displayName: "Hyprpicker"; packageName: "hyprpicker"; installed: false; desc: "Color picker" }
-        ListElement { displayName: "Hyprlock"; packageName: "hyprlock"; installed: false; desc: "Screen locker" }
-        ListElement { displayName: "Hyprsunset"; packageName: "hyprsunset"; installed: false; desc: "Blue light filter" }
-        ListElement { displayName: "jq"; packageName: "jq"; installed: false; desc: "Command-line JSON processor" }
-        ListElement { displayName: "XDG Utils"; packageName: "xdg-utils"; installed: false; desc: "Desktop integration utilities" }
-        ListElement { displayName: "Wl-Clipboard"; packageName: "wl-clipboard"; installed: false; desc: "Wayland clipboard" }
-        ListElement { displayName: "Cliphist"; packageName: "cliphist"; installed: false; desc: "Clipboard history manager" }
-        ListElement { displayName: "Zenity"; packageName: "zenity"; installed: false; desc: "System dialogs for file/folder selection" }
-        ListElement { displayName: "fd"; packageName: "fd"; installed: false; desc: "Fast file search utility" }
-        ListElement { displayName: "Libqalculate"; packageName: "libqalculate"; installed: false; desc: "Advanced math calculator (qalc)" }
-        ListElement { displayName: "Google Sans Flex"; packageName: "__font_google_sans"; installed: false; desc: "UI font (from GitHub)" }
-        ListElement { displayName: "Material Symbols"; packageName: "ttf-material-symbols-variable-git"; installed: false; desc: "Icon font" }
-        ListElement { displayName: "JetBrains Mono NF"; packageName: "ttf-jetbrains-mono-nerd"; installed: false; desc: "Monospace font" }
-        ListElement { displayName: "Kitty"; packageName: "kitty"; installed: false; desc: "Terminal emulator (optional)" }
-        ListElement { displayName: "Fish"; packageName: "fish"; installed: false; desc: "Interactive shell (optional)" }
-        ListElement { displayName: "Starship"; packageName: "starship"; installed: false; desc: "Cross-shell prompt (optional)" }
+        SysCheckService.check();
     }
 
     Rectangle {
@@ -127,7 +47,9 @@ ColumnLayout {
                     color: Appearance.colors.colOnLayer1
                 }
                 StyledText {
-                    text: "Identify and install missing system components."
+                    text: SysCheckService.missingCount > 0 
+                        ? `${SysCheckService.missingCount} system components are missing.` 
+                        : "All core components are installed and ready."
                     font.pixelSize: Appearance.font.pixelSize.small
                     color: Appearance.colors.colSubtext
                 }
@@ -150,9 +72,16 @@ ColumnLayout {
                         text: "sync"
                         iconSize: 18 * Appearance.effectiveScale
                         color: Appearance.colors.colOnPrimary
+                        // Add rotation animation if scanning
+                        RotationAnimation on rotation {
+                            running: SysCheckService.isChecking
+                            from: 0; to: 360
+                            duration: 1000
+                            loops: Animation.Infinite
+                        }
                     }
                     StyledText {
-                        text: "Scan Now"
+                        text: SysCheckService.isChecking ? "Scanning..." : "Scan Now"
                         color: Appearance.colors.colOnPrimary
                         font.weight: Font.Medium
                         font.pixelSize: Appearance.font.pixelSize.small
@@ -169,7 +98,7 @@ ColumnLayout {
         columnSpacing: 12 * Appearance.effectiveScale
 
         Repeater {
-            model: depModel
+            model: SysCheckService.dependencyData
             delegate: Rectangle {
                 Layout.fillWidth: true
                 Layout.preferredWidth: 1
@@ -177,18 +106,15 @@ ColumnLayout {
                 radius: 20 * Appearance.effectiveScale
                 color: Appearance.m3colors.m3surfaceContainerHigh
                 border.width: 1 * Appearance.effectiveScale
-                border.color: model.installed ? "#81C995" : Appearance.colors.colError 
+                border.color: modelData.installed ? "#81C995" : Appearance.colors.colError 
 
                 MouseArea {
                     anchors.fill: parent
                     hoverEnabled: true
 
                     onClicked: {
-                        if (!model.installed) {
-                            let pkg = model.packageName;
-                            if (pkg === "quickshell") pkg = "quickshell-git";
-                            if (pkg === "matugen") pkg = "matugen-bin";
-                            Quickshell.execDetached(["kitty", "--hold", "-e", "paru", "-S", "--needed", pkg]);
+                        if (!modelData.installed) {
+                            Quickshell.execDetached(["kitty", "--hold", "-e", "paru", "-S", "--needed", modelData.name]);
                         }
                     }
 
@@ -199,9 +125,9 @@ ColumnLayout {
                         spacing: 16 * Appearance.effectiveScale
 
                         MaterialSymbol {
-                            text: model.installed ? "check_circle" : "cancel"
+                            text: modelData.installed ? "check_circle" : "cancel"
                             iconSize: 28 * Appearance.effectiveScale
-                            color: model.installed ? "#81C995" : Appearance.colors.colError
+                            color: modelData.installed ? "#81C995" : Appearance.colors.colError
                         }
 
                         ColumnLayout {
@@ -209,7 +135,7 @@ ColumnLayout {
                             spacing: 2 * Appearance.effectiveScale
                             StyledText {
                                 Layout.fillWidth: true
-                                text: model.displayName
+                                text: modelData.name
                                 font.pixelSize: Appearance.font.pixelSize.normal
                                 font.weight: Font.Bold
                                 color: Appearance.colors.colOnLayer1
@@ -217,7 +143,7 @@ ColumnLayout {
                             }
                             StyledText {
                                 Layout.fillWidth: true
-                                text: model.desc
+                                text: modelData.description || "System dependency"
                                 font.pixelSize: Appearance.font.pixelSize.small
                                 color: Appearance.colors.colSubtext
                                 elide: Text.ElideRight
@@ -225,7 +151,7 @@ ColumnLayout {
                         }
 
                         ColumnLayout {
-                            visible: !model.installed
+                            visible: !modelData.installed
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             spacing: 2 * Appearance.effectiveScale
                             StyledText {
@@ -245,7 +171,7 @@ ColumnLayout {
                         }
                         
                         StyledText {
-                            visible: model.installed
+                            visible: modelData.installed
                             text: "Installed"
                             color: "#81C995"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter

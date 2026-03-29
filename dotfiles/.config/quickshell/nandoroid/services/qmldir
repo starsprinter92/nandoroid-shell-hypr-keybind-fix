@@ -35,3 +35,4 @@ singleton ScheduleService ScheduleService.qml
 singleton SmartAutomation SmartAutomation.qml
 singleton TranslationService TranslationService.qml
 singleton WallhavenService WallhavenService.qml
+singleton SysCheckService SysCheckService.qml

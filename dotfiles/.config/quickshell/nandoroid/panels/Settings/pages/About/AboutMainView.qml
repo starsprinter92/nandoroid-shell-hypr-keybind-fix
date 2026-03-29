@@ -105,6 +105,17 @@ ColumnLayout {
                             font.weight: Font.Medium
                             color: Appearance.colors.colOnLayer1
                         }
+
+                        // Notification Badge
+                        Rectangle {
+                            visible: SysCheckService.missingCount > 0
+                            width: 8 * Appearance.effectiveScale
+                            height: 8 * Appearance.effectiveScale
+                            radius: 4 * Appearance.effectiveScale
+                            color: Appearance.colors.colError
+                            Layout.alignment: Qt.AlignVCenter
+                        }
+
                         MaterialSymbol {
                             text: "chevron_right"
                             iconSize: 20 * Appearance.effectiveScale

@@ -147,55 +147,7 @@ if [[ "$DEP_CHOICE" =~ ^[Yy] ]]; then
     # 3a. Core
     info "Core shell dependencies..."
     substep "Required for the shell to function."
-
-    CORE_DEPS=(
-        "hyprland"
-        "quickshell-git"
-        "qt6-declarative"
-        "qt6-svg"
-        "qt6-wayland"
-        "pipewire"
-        "networkmanager"
-        "bluez"
-        "bluez-utils"
-        "libnotify"
-        "polkit"
-        "xdg-desktop-portal-hyprland"
-        "xdg-desktop-portal-gtk"
-        "python3"
-        "python-virtualenv"
-        "adw-gtk-theme"
-        "qt5ct"
-        "qt6ct"
-        "nwg-look"
-        "plasma-integration"
-        "breeze"
-        "breeze-icons"
-        "dgop"
-        "brightnessctl"
-        "ddcutil"
-        "playerctl"
-        "matugen-bin"
-        "grim"
-        "slurp"
-        "wf-recorder"
-        "imagemagick"
-        "ffmpeg"
-        "songrec"
-        "cava"
-        "easyeffects"
-        "hyprpicker"
-        "hyprlock"
-        "hyprsunset"
-        "fd"
-        "libqalculate"
-        "jq"
-        "xdg-utils"
-        "wl-clipboard"
-        "cliphist"
-        "zenity"
-    )
-    paru -S --needed $CONFIRM_FLAG "${CORE_DEPS[@]}" < /dev/tty
+    ./scripts/install_deps.sh core "$CONFIRM_FLAG" < /dev/tty
     success "Core dependencies installed."
 
     # 3b. KDE Material You Venv (Optional but recommended)
@@ -241,12 +193,7 @@ if [[ "$DEP_CHOICE" =~ ^[Yy] ]]; then
         fi
 
         # Official & AUR fonts
-        FONT_DEPS=(
-            "ttf-material-symbols-variable-git"
-            "ttf-jetbrains-mono-nerd"
-            "noto-fonts-emoji"
-        )
-        paru -S --needed $CONFIRM_FLAG "${FONT_DEPS[@]}" < /dev/tty
+        ./scripts/install_deps.sh fonts "$CONFIRM_FLAG" < /dev/tty
         success "All fonts installed."
     else
         success "Skipped."
@@ -260,12 +207,7 @@ if [[ "$DEP_CHOICE" =~ ^[Yy] ]]; then
     ask "Install optional terminal tools? (y/N)"
     read -r TERM_CHOICE < /dev/tty
     if [[ "$TERM_CHOICE" =~ ^[Yy] ]]; then
-        TERM_DEPS=(
-            "kitty"
-            "fish"
-            "starship"
-        )
-        paru -S --needed $CONFIRM_FLAG "${TERM_DEPS[@]}" < /dev/tty
+        ./scripts/install_deps.sh optional "$CONFIRM_FLAG" < /dev/tty
         success "Terminal tools installed."
     else
         success "Skipped."

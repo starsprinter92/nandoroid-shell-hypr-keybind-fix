@@ -122,7 +122,16 @@ ColumnLayout {
                     git fetch origin main >/dev/null 2>&1
                     LOCAL=$(git rev-parse HEAD)
                     REMOTE=$(git rev-parse origin/main)
-                    if [ "$LOCAL" != "$REMOTE" ]; then echo "Update Available (New Commits)"; else echo "Up to date"; fi
+                    if [ "$LOCAL" != "$REMOTE" ]; then 
+                        NEW_DEPS=$(git diff -U0 "$LOCAL" "$REMOTE" -- data/dependencies.json | grep -c '^+.*name' || echo 0)
+                        if [ "$NEW_DEPS" -gt 0 ]; then
+                            echo "Update Available (+$NEW_DEPS new deps)"
+                        else
+                            echo "Update Available (New Commits)"
+                        fi
+                    else 
+                        echo "Up to date"
+                    fi
                 fi
             `]
             stdout: StdioCollector { id: checkUpdateCollector }

@@ -278,7 +278,7 @@ Item {
                     width: Math.max(12 * Appearance.effectiveScale, badgeText.implicitWidth + 4 * Appearance.effectiveScale)
                     height: 12 * Appearance.effectiveScale
                     radius: 6 * Appearance.effectiveScale
-                    color: bellIcon.color // Match the bell icon color
+                    color: root.contentColor
 
                     StyledText {
                         id: badgeText
@@ -286,7 +286,8 @@ Item {
                         text: Notifications.unread > 99 ? "99+" : Notifications.unread.toString()
                         font.pixelSize: 8 * Appearance.effectiveScale
                         font.weight: Font.Bold
-                        color: showBackground ? Appearance.m3colors.m3surface : Appearance.colors.colLayer0 // High contrast against the bell-colored badge
+                        // Inverse color of the badge to ensure contrast
+                        color: showBackground ? Appearance.m3colors.m3surface : (Appearance.colors.resolvedStatusBarDarkText ? "#F5F5F5" : "#1E1E1E")
                     }
                 }
             }

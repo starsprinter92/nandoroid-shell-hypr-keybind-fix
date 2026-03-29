@@ -47,7 +47,8 @@
   "fonts": [
     { "name": "ttf-material-symbols-variable-git", "command": "fc-list", "description": "Material Symbols Icons" },
     { "name": "ttf-jetbrains-mono-nerd", "command": "fc-list", "description": "JetBrains Mono Nerd Font" },
-    { "name": "noto-fonts-emoji", "command": "fc-list", "description": "Noto Emoji" }
+    { "name": "noto-fonts-emoji", "command": "fc-list", "description": "Noto Emoji" },
+    { "name": "noto-fonts-cjk", "command": "fc-list", "description": "CJK Font (Japanese, Chinese, Korean)" }
   ],
   "optional": [
     { "name": "kitty", "command": "kitty", "description": "Terminal emulator" },

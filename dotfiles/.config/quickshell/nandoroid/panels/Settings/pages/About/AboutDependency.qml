@@ -13,7 +13,7 @@ ColumnLayout {
     id: dependencyRoot
     spacing: 24 * Appearance.effectiveScale
 
-    property alias isScanning: SysCheckService.isChecking
+    readonly property bool isScanning: SysCheckService.isChecking
 
     function scanDependencies() {
         SysCheckService.check();

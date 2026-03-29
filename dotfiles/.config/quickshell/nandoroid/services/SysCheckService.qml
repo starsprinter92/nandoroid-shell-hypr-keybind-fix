@@ -18,7 +18,7 @@ Singleton {
     property bool isChecking: false
     
     // The master list of dependencies with their current status
-    // [{name, displayName, description, installed, category}]
+    // [{name, description, installed, category}]
     property var dependencyData: []
 
     function check() {
@@ -37,13 +37,16 @@ Singleton {
             "JSON_FILE=\"$HOME_PATH/.config/quickshell/nandoroid/data/dependencies.json\"; " +
             "if ! command -v jq >/dev/null 2>&1; then echo 'ERROR: jq not found'; exit 1; fi; " +
             "if [ ! -f \"$JSON_FILE\" ]; then echo 'ERROR: File not found'; exit 1; fi; " +
-            "jq -c '.core[], .fonts[], .optional[]' \"$JSON_FILE\" | while read -r item; do " +
-            "  name=$(echo \"$item\" | jq -r '.name'); " +
-            "  cmd=$(echo \"$item\" | jq -r '.command'); " +
-            "  desc=$(echo \"$item\" | jq -r '.description // \"\"'); " +
-            "  installed=false; " +
-            "  if command -v \"$cmd\" >/dev/null 2>&1 || [ -f \"$cmd\" ]; then installed=true; fi; " +
-            "  echo \"$name|$desc|$installed\"; " +
+            "categories=(\"core\" \"services\" \"utilities\" \"theming\" \"fonts\" \"optional\"); " +
+            "for cat in \"${categories[@]}\"; do " +
+            "  jq -c \".$cat[]\" \"$JSON_FILE\" | while read -r item; do " +
+            "    name=$(echo \"$item\" | jq -r '.name'); " +
+            "    cmd=$(echo \"$item\" | jq -r '.command'); " +
+            "    desc=$(echo \"$item\" | jq -r '.description // \"\"'); " +
+            "    installed=false; " +
+            "    if command -v \"$cmd\" >/dev/null 2>&1 || [ -f \"$cmd\" ]; then installed=true; fi; " +
+            "    echo \"$name|$desc|$installed|$cat\"; " +
+            "  done; " +
             "done"
         ]
 
@@ -56,24 +59,26 @@ Singleton {
                 }
                 
                 const lines = this.text.split("\n").filter(line => line.trim() !== "");
-                if (lines.length === 0) {
-                    root.isChecking = false;
-                    return;
-                }
                 let newData = [];
                 let missing = 0;
                 
                 lines.forEach(line => {
                     const parts = line.split("|");
-                    if (parts.length < 3) return;
+                    if (parts.length < 4) return;
                     
                     const isInstalled = parts[2] === "true";
-                    if (!isInstalled) missing++;
+                    const category = parts[3];
+                    
+                    // Only count missing in core, services, and fonts as critical
+                    if (!isInstalled && (category === "core" || category === "services" || category === "fonts")) {
+                        missing++;
+                    }
                     
                     newData.push({
                         name: parts[0],
                         description: parts[1],
-                        installed: isInstalled
+                        installed: isInstalled,
+                        category: category
                     });
                 });
                 

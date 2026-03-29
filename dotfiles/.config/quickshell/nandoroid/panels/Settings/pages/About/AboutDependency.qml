@@ -48,10 +48,10 @@ ColumnLayout {
                 }
                 StyledText {
                     text: SysCheckService.missingCount > 0 
-                        ? `${SysCheckService.missingCount} system components are missing.` 
-                        : "All core components are installed and ready."
+                        ? `${SysCheckService.missingCount} critical components are missing.` 
+                        : "All critical components are installed and ready."
                     font.pixelSize: Appearance.font.pixelSize.small
-                    color: Appearance.colors.colSubtext
+                    color: SysCheckService.missingCount > 0 ? Appearance.colors.colError : Appearance.colors.colSubtext
                 }
             }
 
@@ -91,92 +91,133 @@ ColumnLayout {
         }
     }
 
-    GridLayout {
-        Layout.fillWidth: true
-        columns: 2
-        rowSpacing: 12 * Appearance.effectiveScale
-        columnSpacing: 12 * Appearance.effectiveScale
-
-        Repeater {
-            model: SysCheckService.dependencyData
-            delegate: Rectangle {
+    // --- Categorized List ---
+    Repeater {
+        model: ["core", "services", "utilities", "theming", "fonts", "optional"]
+        delegate: ColumnLayout {
+            Layout.fillWidth: true
+            spacing: 12 * Appearance.effectiveScale
+            
+            // Category Header
+            RowLayout {
                 Layout.fillWidth: true
-                Layout.preferredWidth: 1
-                Layout.preferredHeight: 72 * Appearance.effectiveScale
-                radius: 20 * Appearance.effectiveScale
-                color: Appearance.m3colors.m3surfaceContainerHigh
-                border.width: 1 * Appearance.effectiveScale
-                border.color: modelData.installed ? "#81C995" : Appearance.colors.colError 
-
-                MouseArea {
-                    anchors.fill: parent
-                    hoverEnabled: true
-
-                    onClicked: {
-                        if (!modelData.installed) {
-                            Quickshell.execDetached(["kitty", "--hold", "-e", "paru", "-S", "--needed", modelData.name]);
+                Layout.topMargin: 8 * Appearance.effectiveScale
+                spacing: 8 * Appearance.effectiveScale
+                
+                Rectangle {
+                    width: 4 * Appearance.effectiveScale
+                    height: 16 * Appearance.effectiveScale
+                    radius: 2 * Appearance.effectiveScale
+                    color: Appearance.colors.colPrimary
+                }
+                
+                StyledText {
+                    text: {
+                        switch(modelData) {
+                            case "core": return "Core Components (Required)";
+                            case "services": return "System Services";
+                            case "utilities": return "Utility Tools";
+                            case "theming": return "Theming & Appearance";
+                            case "fonts": return "Required Fonts";
+                            case "optional": return "Optional Addons";
+                            default: return modelData.toUpperCase();
                         }
                     }
+                    font.pixelSize: Appearance.font.pixelSize.small
+                    font.weight: Font.Bold
+                    color: Appearance.colors.colPrimary
+                    opacity: 0.8
+                }
+            }
 
-                    RowLayout {
-                        anchors.fill: parent
-                        anchors.leftMargin: 20 * Appearance.effectiveScale
-                        anchors.rightMargin: 20 * Appearance.effectiveScale
-                        spacing: 16 * Appearance.effectiveScale
+            GridLayout {
+                Layout.fillWidth: true
+                columns: 2
+                rowSpacing: 12 * Appearance.effectiveScale
+                columnSpacing: 12 * Appearance.effectiveScale
 
-                        MaterialSymbol {
-                            text: modelData.installed ? "check_circle" : "cancel"
-                            iconSize: 28 * Appearance.effectiveScale
-                            color: modelData.installed ? "#81C995" : Appearance.colors.colError
-                        }
+                Repeater {
+                    model: SysCheckService.dependencyData.filter(d => d.category === modelData)
+                    delegate: Rectangle {
+                        Layout.fillWidth: true
+                        Layout.preferredWidth: 1
+                        Layout.preferredHeight: 72 * Appearance.effectiveScale
+                        radius: 20 * Appearance.effectiveScale
+                        color: Appearance.m3colors.m3surfaceContainerHigh
+                        border.width: 1 * Appearance.effectiveScale
+                        border.color: modelData.installed ? "#81C995" : Appearance.colors.colError 
 
-                        ColumnLayout {
-                            Layout.fillWidth: true
-                            spacing: 2 * Appearance.effectiveScale
-                            StyledText {
-                                Layout.fillWidth: true
-                                text: modelData.name
-                                font.pixelSize: Appearance.font.pixelSize.normal
-                                font.weight: Font.Bold
-                                color: Appearance.colors.colOnLayer1
-                                elide: Text.ElideRight
-                            }
-                            StyledText {
-                                Layout.fillWidth: true
-                                text: modelData.description || "System dependency"
-                                font.pixelSize: Appearance.font.pixelSize.small
-                                color: Appearance.colors.colSubtext
-                                elide: Text.ElideRight
-                            }
-                        }
+                        MouseArea {
+                            anchors.fill: parent
+                            hoverEnabled: true
 
-                        ColumnLayout {
-                            visible: !modelData.installed
-                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            spacing: 2 * Appearance.effectiveScale
-                            StyledText {
-                                text: "Not Installed"
-                                color: Appearance.colors.colError
-                                font.weight: Font.Bold
-                                font.pixelSize: Appearance.font.pixelSize.small
-                                Layout.alignment: Qt.AlignRight
+                            onClicked: {
+                                if (!modelData.installed) {
+                                    Quickshell.execDetached(["kitty", "--hold", "-e", "paru", "-S", "--needed", modelData.name]);
+                                }
                             }
-                            StyledText {
-                                text: "Click to install"
-                                color: Appearance.colors.colError
-                                opacity: 0.8
-                                font.pixelSize: Appearance.font.pixelSize.smallest
-                                Layout.alignment: Qt.AlignRight
+
+                            RowLayout {
+                                anchors.fill: parent
+                                anchors.leftMargin: 20 * Appearance.effectiveScale
+                                anchors.rightMargin: 20 * Appearance.effectiveScale
+                                spacing: 16 * Appearance.effectiveScale
+
+                                MaterialSymbol {
+                                    text: modelData.installed ? "check_circle" : "cancel"
+                                    iconSize: 28 * Appearance.effectiveScale
+                                    color: modelData.installed ? "#81C995" : Appearance.colors.colError
+                                }
+
+                                ColumnLayout {
+                                    Layout.fillWidth: true
+                                    spacing: 2 * Appearance.effectiveScale
+                                    StyledText {
+                                        Layout.fillWidth: true
+                                        text: modelData.name
+                                        font.pixelSize: Appearance.font.pixelSize.normal
+                                        font.weight: Font.Bold
+                                        color: Appearance.colors.colOnLayer1
+                                        elide: Text.ElideRight
+                                    }
+                                    StyledText {
+                                        Layout.fillWidth: true
+                                        text: modelData.description || "System dependency"
+                                        font.pixelSize: Appearance.font.pixelSize.smallest
+                                        color: Appearance.colors.colSubtext
+                                        elide: Text.ElideRight
+                                    }
+                                }
+
+                                ColumnLayout {
+                                    visible: !modelData.installed
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    spacing: 2 * Appearance.effectiveScale
+                                    StyledText {
+                                        text: "Not Installed"
+                                        color: Appearance.colors.colError
+                                        font.weight: Font.Bold
+                                        font.pixelSize: Appearance.font.pixelSize.small
+                                        Layout.alignment: Qt.AlignRight
+                                    }
+                                    StyledText {
+                                        text: "Click to install"
+                                        color: Appearance.colors.colError
+                                        opacity: 0.8
+                                        font.pixelSize: Appearance.font.pixelSize.smallest
+                                        Layout.alignment: Qt.AlignRight
+                                    }
+                                }
+                                
+                                StyledText {
+                                    visible: modelData.installed
+                                    text: "Installed"
+                                    color: "#81C995"
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    font.weight: Font.Bold
+                                    font.pixelSize: Appearance.font.pixelSize.small
+                                }
                             }
-                        }
-                        
-                        StyledText {
-                            visible: modelData.installed
-                            text: "Installed"
-                            color: "#81C995"
-                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            font.weight: Font.Bold
-                            font.pixelSize: Appearance.font.pixelSize.small
                         }
                     }
                 }

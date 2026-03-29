@@ -204,11 +204,13 @@ if [[ "$DEP_CHOICE" =~ ^[Yy] ]]; then
     choice "1" "kitty     ${C_DIM}- terminal with theme injection${C_RST}"
     choice "2" "fish      ${C_DIM}- interactive shell${C_RST}"
     choice "3" "starship  ${C_DIM}- cross-shell prompt${C_RST}"
-    ask "Install optional terminal tools? (y/N)"
+    choice "4" "theming   ${C_DIM}- GTK/Qt theme sync utilities${C_RST}"
+    ask "Install optional tools? (y/N)"
     read -r TERM_CHOICE < /dev/tty
     if [[ "$TERM_CHOICE" =~ ^[Yy] ]]; then
         ./scripts/install_deps.sh optional "$CONFIRM_FLAG" < /dev/tty
-        success "Terminal tools installed."
+        ./scripts/install_deps.sh theming "$CONFIRM_FLAG" < /dev/tty
+        success "Optional tools installed."
     else
         success "Skipped."
     fi

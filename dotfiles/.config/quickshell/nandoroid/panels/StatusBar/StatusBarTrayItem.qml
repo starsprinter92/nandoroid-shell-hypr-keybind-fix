@@ -47,17 +47,18 @@ MouseArea {
             height: 16 * Appearance.effectiveScale
             asynchronous: true
             
-            // Apply a thick, solid-looking halo (stroke)
-            layer.enabled: true
+            // Apply a solid dark outline (stroke) only when status bar text is dark (light wallpaper)
+            // This prevents "ugly" white glows on dark wallpapers
+            layer.enabled: Appearance.colors.resolvedStatusBarDarkText
             layer.effect: DropShadow {
                 transparentBorder: true
                 horizontalOffset: 0
                 verticalOffset: 0
-                radius: 3 * Appearance.effectiveScale // Larger radius for thickness
+                radius: 2 * Appearance.effectiveScale 
                 samples: 12
-                spread: 0.5 // Medium spread makes it look like a soft stroke
-                color: Functions.ColorUtils.applyAlpha("#000000", 0.8)
-                cached: true // High performance
+                spread: 0.6
+                color: Functions.ColorUtils.applyAlpha("#000000", 0.7)
+                cached: true
             }
         }
     }

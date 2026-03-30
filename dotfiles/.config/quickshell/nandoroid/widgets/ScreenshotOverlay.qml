@@ -13,7 +13,7 @@ import "../panels/RegionSelector/utils"
 
 /**
  * Android 16 styled screenshot preview overlay.
- * Dynamic island sizing for perfectly balanced padding regardless of aspect ratio.
+ * Fixed: Clicks pass through transparent areas. Correct auto-hide timer.
  */
 PanelWindow {
     id: root
@@ -40,6 +40,11 @@ PanelWindow {
     WlrLayershell.keyboardFocus: WlrKeyboardFocus.None
     exclusionMode: ExclusionMode.Ignore
 
+    // Fix: Mask ensures clicks pass through transparent areas
+    mask: Region {
+        item: mainContent
+    }
+
     onImagePathChanged: {
         if (imagePath !== "") {
             displayPath = "file://" + imagePath + "?" + new Date().getTime();
@@ -49,28 +54,30 @@ PanelWindow {
 
     Timer {
         id: hideTimer
-        interval: 5000
+        interval: 3000
         repeat: false
         onTriggered: root.imagePath = ""
     }
 
-    MouseArea {
-        id: globalHoverArea
-        anchors.fill: parent
-        hoverEnabled: true
-        acceptedButtons: Qt.NoButton
-        onContainsMouseChanged: {
-            if (containsMouse) hideTimer.stop();
-            else if (root.visible) hideTimer.restart();
-        }
-    }
-
     // ── Content Container ──
     Item {
+        id: mainContent
         anchors.fill: parent
         anchors.margins: 24 * Appearance.effectiveScale
 
-        // 1. Action Pill Island (Balanced Padding)
+        // Hover detection localized to content only
+        MouseArea {
+            id: globalHoverArea
+            anchors.fill: parent
+            hoverEnabled: true
+            acceptedButtons: Qt.NoButton
+            onContainsMouseChanged: {
+                if (containsMouse) hideTimer.stop();
+                else if (root.visible) hideTimer.restart();
+            }
+        }
+
+        // 1. Action Pill Island
         Rectangle {
             id: actionPillIsland
             anchors.bottom: parent.bottom
@@ -136,30 +143,22 @@ PanelWindow {
             }
         }
 
-        // 2. Thumbnail Island (Dynamic & Balanced)
+        // 2. Thumbnail Island
         Rectangle {
             id: thumbnailIsland
             anchors.bottom: actionPillIsland.top
             anchors.left: parent.left
             anchors.bottomMargin: 12 * Appearance.effectiveScale
             
-            // Define the padding we want around the image
             readonly property real islandPadding: 8 * Appearance.effectiveScale
-            
-            // Define max dimensions for the image ITSELF
             readonly property real screenAspect: (root.screen && root.screen.height > 0) ? (root.screen.width / root.screen.height) : (16/9)
             readonly property real maxImageDim: 300 * Appearance.effectiveScale
             readonly property real maxImgW: (screenAspect >= 1.0) ? maxImageDim : (maxImageDim * screenAspect)
             readonly property real maxImgH: (screenAspect >= 1.0) ? (maxImageDim / screenAspect) : maxImageDim
-            
-            // Image actual aspect ratio
             readonly property real imgAspect: (previewImg.implicitWidth > 0) ? (previewImg.implicitWidth / previewImg.implicitHeight) : screenAspect
-            
-            // Calculate final image size
             readonly property real finalImgW: (imgAspect > (maxImgW / maxImgH)) ? maxImgW : (maxImgH * imgAspect)
             readonly property real finalImgH: finalImgW / imgAspect
 
-            // Island size is exactly image size + padding
             width: finalImgW + (islandPadding * 2)
             height: finalImgH + (islandPadding * 2)
 
@@ -211,7 +210,7 @@ PanelWindow {
         }
     }
 
-    // ── Action Card (Quick Settings Style) ──
+    // ── Action Card Component ──
     component ActionCard: RippleButton {
         id: actionBtn
         property string btnIcon: ""

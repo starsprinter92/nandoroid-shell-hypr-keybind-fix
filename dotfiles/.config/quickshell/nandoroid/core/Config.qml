@@ -215,6 +215,40 @@ Singleton {
                         property string labelFontWeight: "Light"
                         property string alignment: "left"
                     }
+
+                    property JsonObject text: JsonObject {
+                        property int fontSize: 42
+                        property int dateFontSize: 18
+                        property string alignment: "center"
+                        property string timeColorStyle: "onSurface"
+                        property string dateColorStyle: "primary"
+                    }
+
+                    property JsonObject textLocked: JsonObject {
+                        property int fontSize: 42
+                        property int dateFontSize: 18
+                        property string alignment: "center"
+                        property string timeColorStyle: "onSurface"
+                        property string dateColorStyle: "primary"
+                    }
+
+                    property JsonObject pill: JsonObject {
+                        property int size: 120
+                        property bool isVertical: false
+                        property bool showBackground: true
+                        property string timeColorStyle: "onLayer0"
+                        property string dateColorStyle: "primary"
+                        property string pillColorStyle: "surfaceContainerHigh"
+                    }
+
+                    property JsonObject pillLocked: JsonObject {
+                        property int size: 120
+                        property bool isVertical: false
+                        property bool showBackground: true
+                        property string timeColorStyle: "onLayer0"
+                        property string dateColorStyle: "primary"
+                        property string pillColorStyle: "surfaceContainerHigh"
+                    }
                 }
             }
 

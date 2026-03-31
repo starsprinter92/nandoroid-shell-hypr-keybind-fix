@@ -68,6 +68,8 @@ Item {
                 case "analog": return "clock/AnalogClock.qml"
                 case "code": return "clock/CodeClock.qml"
                 case "stacked": return "clock/StackedClock.qml"
+                case "text": return "clock/TextClock.qml"
+                case "pill": return "clock/PillClock.qml"
                 case "digital":
                 default: return "clock/DigitalClock.qml"
             }

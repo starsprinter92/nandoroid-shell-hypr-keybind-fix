@@ -88,7 +88,7 @@ Item {
                 implicitSize: root.width
                 color: root.colBackground
                 shapeString: Config.ready ? root.cfg.shape : "Circle"
-                borderWidth: Math.max(2, 2 * Appearance.effectiveScale)
+                borderWidth: 0
                 borderColor: Appearance.colors.colOutlineVariant
             }
         }

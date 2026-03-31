@@ -23,7 +23,7 @@ Column {
             required property int index
 
             property bool isAmPm: modelData.match(/^[AP]M$/i) !== null
-            property real baseSize: isAmPm ? 24 : (root.hourMarksEnabled ? 48 : 84)
+            property real baseSize: (isAmPm ? 24 : (root.hourMarksEnabled ? 48 : 64)) * Appearance.effectiveScale
 
             anchors.horizontalCenter: root.horizontalCenter
             text: isAmPm ? modelData : modelData.padStart(2, "0")

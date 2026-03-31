@@ -103,6 +103,8 @@ ColumnLayout {
                                 { id: "digital", name: "Digital", icon: "numbers" },
                                 { id: "analog",  name: "Analog",  icon: "watch" },
                                 { id: "stacked", name: "Stacked", icon: "view_day" },
+                                { id: "text",    name: "Text",    icon: "text_fields" },
+                                { id: "pill",    name: "Pill",    icon: "smart_button" },
                                 { id: "code",    name: "Code",    icon: "code" }
                             ]
                             delegate: RippleButton {
@@ -202,6 +204,8 @@ ColumnLayout {
                     readonly property var analogCfg:  isLockCtx ? Config.options.appearance.clock.analogLocked  : Config.options.appearance.clock.analog
                     readonly property var codeCfg:    isLockCtx ? Config.options.appearance.clock.codeLocked    : Config.options.appearance.clock.code
                     readonly property var stackedCfg: isLockCtx ? Config.options.appearance.clock.stackedLocked : Config.options.appearance.clock.stacked
+                    readonly property var textCfg: isLockCtx ? Config.options.appearance.clock.textLocked : Config.options.appearance.clock.text
+                    readonly property var pillCfg: isLockCtx ? Config.options.appearance.clock.pillLocked : Config.options.appearance.clock.pill
     
                     // ── Digital Advanced ──
                     ColumnLayout {
@@ -721,6 +725,216 @@ ColumnLayout {
                                 }
                                 StyledText { 
                                     text: Math.round(advancedPanel.stackedCfg.labelFontSize).toString()
+                                    color: Appearance.colors.colOnLayer1 
+                                    Layout.preferredWidth: 40 * Appearance.effectiveScale
+                                    horizontalAlignment: Text.AlignRight
+                                }
+                            }
+                        }
+                    }
+
+                    // ── Text Advanced ──
+                    ColumnLayout {
+                        visible: advancedPanel.currentStyle === "text"
+                        Layout.fillWidth: true
+                        spacing: 8 * Appearance.effectiveScale
+
+                        GridLayout {
+                            columns: 2
+                            Layout.fillWidth: true
+                            rowSpacing: 12 * Appearance.effectiveScale
+                            
+                            StyledText { text: "Time Color"; color: Appearance.colors.colOnLayer1 }
+                            Row {
+                                Layout.alignment: Qt.AlignRight
+                                spacing: 2 * Appearance.effectiveScale
+                                Repeater {
+                                    model: ["primary", "secondary", "onSurface", "surface", "error"]
+                                    delegate: SegmentedButton {
+                                        required property string modelData
+                                        buttonText: modelData.charAt(0).toUpperCase() + modelData.slice(1)
+                                        isHighlighted: Config.ready && advancedPanel.textCfg.timeColorStyle === modelData
+                                        onClicked: advancedPanel.textCfg.timeColorStyle = modelData
+                                    }
+                                }
+                            }
+
+                            StyledText { text: "Date Color"; color: Appearance.colors.colOnLayer1 }
+                            Row {
+                                Layout.alignment: Qt.AlignRight
+                                spacing: 2 * Appearance.effectiveScale
+                                Repeater {
+                                    model: ["primary", "secondary", "onSurface", "surface", "error"]
+                                    delegate: SegmentedButton {
+                                        required property string modelData
+                                        buttonText: modelData.charAt(0).toUpperCase() + modelData.slice(1)
+                                        isHighlighted: Config.ready && advancedPanel.textCfg.dateColorStyle === modelData
+                                        onClicked: advancedPanel.textCfg.dateColorStyle = modelData
+                                    }
+                                }
+                            }
+
+                            StyledText { text: "Alignment"; color: Appearance.colors.colOnLayer1 }
+                            Row {
+                                Layout.alignment: Qt.AlignRight
+                                spacing: 2 * Appearance.effectiveScale
+                                Repeater {
+                                    model: ["left", "center", "right"]
+                                    delegate: SegmentedButton {
+                                        required property string modelData
+                                        buttonText: modelData.charAt(0).toUpperCase() + modelData.slice(1)
+                                        isHighlighted: Config.ready && advancedPanel.textCfg.alignment === modelData
+                                        onClicked: advancedPanel.textCfg.alignment = modelData
+                                    }
+                                }
+                            }
+
+                            StyledText { 
+                                text: "Font Size"
+                                Layout.preferredWidth: 110 * Appearance.effectiveScale
+                                color: Appearance.colors.colOnLayer1 
+                            }
+                            RowLayout {
+                                Layout.fillWidth: true
+                                spacing: 12 * Appearance.effectiveScale
+                                StyledSlider {
+                                    Layout.fillWidth: true
+                                    value: Config.ready ? (advancedPanel.textCfg.fontSize || 24) : 24
+                                    from: 14; to: 120
+                                    onMoved: advancedPanel.textCfg.fontSize = Math.round(value)
+                                }
+                                StyledText { 
+                                    text: Math.round(advancedPanel.textCfg.fontSize || 24).toString()
+                                    color: Appearance.colors.colOnLayer1 
+                                    Layout.preferredWidth: 40 * Appearance.effectiveScale
+                                    horizontalAlignment: Text.AlignRight
+                                }
+                            }
+
+                            StyledText { 
+                                text: "Date Size"
+                                Layout.preferredWidth: 110 * Appearance.effectiveScale
+                                color: Appearance.colors.colOnLayer1 
+                            }
+                            RowLayout {
+                                Layout.fillWidth: true
+                                spacing: 12 * Appearance.effectiveScale
+                                StyledSlider {
+                                    Layout.fillWidth: true
+                                    value: Config.ready ? (advancedPanel.textCfg.dateFontSize || 18) : 18
+                                    from: 8; to: 60
+                                    onMoved: advancedPanel.textCfg.dateFontSize = Math.round(value)
+                                }
+                                StyledText { 
+                                    text: Math.round(advancedPanel.textCfg.dateFontSize || 18).toString()
+                                    color: Appearance.colors.colOnLayer1 
+                                    Layout.preferredWidth: 40 * Appearance.effectiveScale
+                                    horizontalAlignment: Text.AlignRight
+                                }
+                            }
+                        }
+                    }
+
+                    // ── Pill Advanced ──
+                    ColumnLayout {
+                        visible: advancedPanel.currentStyle === "pill"
+                        Layout.fillWidth: true
+                        spacing: 8 * Appearance.effectiveScale
+
+                        GridLayout {
+                            columns: 2
+                            Layout.fillWidth: true
+                            rowSpacing: 12 * Appearance.effectiveScale
+                            
+                            StyledText { text: "Time Color"; color: Appearance.colors.colOnLayer1 }
+                            Row {
+                                Layout.alignment: Qt.AlignRight
+                                spacing: 2 * Appearance.effectiveScale
+                                Repeater {
+                                    model: ["primary", "secondary", "onSurface", "surface"]
+                                    delegate: SegmentedButton {
+                                        required property string modelData
+                                        buttonText: modelData.charAt(0).toUpperCase() + modelData.slice(1)
+                                        isHighlighted: Config.ready && advancedPanel.pillCfg.timeColorStyle === modelData
+                                        onClicked: advancedPanel.pillCfg.timeColorStyle = modelData
+                                    }
+                                }
+                            }
+
+                            StyledText { text: "Date Color"; color: Appearance.colors.colOnLayer1 }
+                            Row {
+                                Layout.alignment: Qt.AlignRight
+                                spacing: 2 * Appearance.effectiveScale
+                                Repeater {
+                                    model: ["primary", "secondary", "onSurface", "surface"]
+                                    delegate: SegmentedButton {
+                                        required property string modelData
+                                        buttonText: modelData.charAt(0).toUpperCase() + modelData.slice(1)
+                                        isHighlighted: Config.ready && advancedPanel.pillCfg.dateColorStyle === modelData
+                                        onClicked: advancedPanel.pillCfg.dateColorStyle = modelData
+                                    }
+                                }
+                            }
+
+                            StyledText { text: "Pill Color"; color: Appearance.colors.colOnLayer1 }
+                            Row {
+                                Layout.alignment: Qt.AlignRight
+                                spacing: 2 * Appearance.effectiveScale
+                                Repeater {
+                                    model: ["primaryContainer", "secondaryContainer", "surfaceContainerHigh", "surfaceContainerLowest"]
+                                    delegate: SegmentedButton {
+                                        required property string modelData
+                                        buttonText: {
+                                            if (modelData === "surfaceContainerHigh") return "Surface";
+                                            if (modelData === "primaryContainer") return "Primary";
+                                            if (modelData === "secondaryContainer") return "Secondary";
+                                            return "Glass";
+                                        }
+                                        isHighlighted: Config.ready && advancedPanel.pillCfg.pillColorStyle === modelData
+                                        onClicked: advancedPanel.pillCfg.pillColorStyle = modelData
+                                    }
+                                }
+                            }
+
+                            StyledText { text: "Orientation"; color: Appearance.colors.colOnLayer1 }
+                            Row {
+                                Layout.alignment: Qt.AlignRight
+                                spacing: 2 * Appearance.effectiveScale
+                                SegmentedButton {
+                                    buttonText: "Horizontal"
+                                    isHighlighted: Config.ready && !advancedPanel.pillCfg.isVertical
+                                    onClicked: advancedPanel.pillCfg.isVertical = false
+                                }
+                                SegmentedButton {
+                                    buttonText: "Vertical"
+                                    isHighlighted: Config.ready && advancedPanel.pillCfg.isVertical
+                                    onClicked: advancedPanel.pillCfg.isVertical = true
+                                }
+                            }
+
+                            StyledText { text: "Show Background"; color: Appearance.colors.colOnLayer1 }
+                            AndroidToggle {
+                                Layout.alignment: Qt.AlignRight
+                                checked: Config.ready && advancedPanel.pillCfg.showBackground
+                                onToggled: advancedPanel.pillCfg.showBackground = !advancedPanel.pillCfg.showBackground
+                            }
+
+                            StyledText { 
+                                text: "Clock Size"
+                                Layout.preferredWidth: 110 * Appearance.effectiveScale
+                                color: Appearance.colors.colOnLayer1 
+                            }
+                            RowLayout {
+                                Layout.fillWidth: true
+                                spacing: 12 * Appearance.effectiveScale
+                                StyledSlider {
+                                    Layout.fillWidth: true
+                                    value: Config.ready ? (advancedPanel.pillCfg.size || 120) : 120
+                                    from: 60; to: 300
+                                    onMoved: advancedPanel.pillCfg.size = Math.round(value)
+                                }
+                                StyledText { 
+                                    text: Math.round(advancedPanel.pillCfg.size || 120).toString()
                                     color: Appearance.colors.colOnLayer1 
                                     Layout.preferredWidth: 40 * Appearance.effectiveScale
                                     horizontalAlignment: Text.AlignRight

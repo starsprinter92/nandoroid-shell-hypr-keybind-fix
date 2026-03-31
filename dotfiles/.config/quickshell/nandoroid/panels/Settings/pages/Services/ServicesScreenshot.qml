@@ -14,7 +14,7 @@ ColumnLayout {
     
     SearchHandler { 
         searchString: "Screenshot"
-        aliases: ["Screen Snip", "Screen Record", "Capture", "Recording"]
+        aliases: ["Screen Record", "Screen Capture", "Screen Snip", "Capture", "Recording", "Save Path", "Storage", "Screenshot Path", "Recording Path"]
     }
 
     RowLayout {
@@ -274,7 +274,7 @@ ColumnLayout {
                     text: (Config.ready && Config.options.screenshot) ? Config.options.screenshot.savePath : ""
                     onEditingFinished: {
                         if (Config.ready && Config.options.screenshot) {
-                            Config.options.screenshot.savePath = text;
+                            Config.options.screenshot.savePath = Functions.FileUtils.trimFileProtocol(text);
                         }
                     }
                     
@@ -333,7 +333,7 @@ ColumnLayout {
                     text: (Config.ready && Config.options.screenshot) ? Config.options.screenshot.recordPath : ""
                     onEditingFinished: {
                         if (Config.ready && Config.options.screenshot) {
-                            Config.options.screenshot.recordPath = text;
+                            Config.options.screenshot.recordPath = Functions.FileUtils.trimFileProtocol(text);
                         }
                     }
                     

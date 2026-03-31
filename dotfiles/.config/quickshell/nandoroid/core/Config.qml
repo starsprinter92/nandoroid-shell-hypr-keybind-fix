@@ -479,8 +479,8 @@ Singleton {
             // --- Screenshot & Recording ---
             property JsonObject screenshot: JsonObject {
                 property bool autoSave: true
-                property string savePath: Directories.home + "/Pictures/Screenshots"
-                property string recordPath: Directories.home + "/Videos/Recordings"
+                property string savePath: Directories.home.replace("file://", "") + "/Pictures/Screenshots"
+                property string recordPath: Directories.home.replace("file://", "") + "/Videos/Recordings"
                 property bool showPreview: true
                 property bool autoCopy: true
             }

@@ -73,7 +73,7 @@ import Quickshell
                             radius: 14 * Appearance.effectiveScale
                             color: (Config.ready && Config.options.bar && Config.options.bar.show_distro_icon)
                                 ? Appearance.colors.colPrimary
-                                : Appearance.colors.colLayer3
+                                : Appearance.m3colors.m3surfaceContainerLowest
 
                             Rectangle {
                                 width: 20 * Appearance.effectiveScale
@@ -202,7 +202,7 @@ import Quickshell
                             radius: 14 * Appearance.effectiveScale
                             color: (Config.ready && Config.options.privacy && Config.options.privacy.enable)
                                 ? Appearance.colors.colPrimary
-                                : Appearance.colors.colLayer3
+                                : Appearance.m3colors.m3surfaceContainerLowest
 
                             Rectangle {
                                 width: 20 * Appearance.effectiveScale
@@ -267,7 +267,7 @@ import Quickshell
                             radius: 14 * Appearance.effectiveScale
                             color: (Config.ready && Config.options.regionSelector && Config.options.regionSelector.targetRegions.windows)
                                 ? Appearance.colors.colPrimary
-                                : Appearance.colors.colLayer3
+                                : Appearance.m3colors.m3surfaceContainerLowest
 
                             Rectangle {
                                 width: 20 * Appearance.effectiveScale

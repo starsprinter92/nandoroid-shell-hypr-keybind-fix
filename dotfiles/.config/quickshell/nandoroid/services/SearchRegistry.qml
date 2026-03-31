@@ -49,6 +49,7 @@ Item {
             { file: "panels/Settings/pages/WallpaperStyle/WsWallpaperCycle.qml", pageIndex: 4 },
             { file: "panels/Settings/pages/WallpaperStyle/WsLauncherIcons.qml", pageIndex: 4 },
             { file: "panels/Settings/pages/Services/ServicesSettings.qml", pageIndex: 5 },
+            { file: "panels/Settings/pages/Services/ServicesScreenshot.qml", pageIndex: 5 },
             { file: "panels/Settings/pages/Services/ServicesWeather.qml", pageIndex: 5 },
             { file: "panels/Settings/pages/Services/ServicesSearch.qml", pageIndex: 5 },
             { file: "panels/Settings/pages/Services/ServicesNetwork.qml", pageIndex: 5 },

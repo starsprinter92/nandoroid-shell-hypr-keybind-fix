@@ -33,6 +33,7 @@ Item {
     
     property bool favMode: false
     property bool wallhavenMode: false
+    property bool naiveMode: false
     property alias searchFilter: headerSearch.text
     
     onSearchFilterChanged: {
@@ -41,6 +42,9 @@ Item {
                 const id = searchFilter.substring(10).trim();
                 if (id !== "" && id.length > 3) WallhavenService.search(id, true);
             }
+        } else if (naiveMode) {
+            // Local search on naive results is handled by searchFilter binding in model if needed
+            // but for now we just show all newest first
         } else {
             Wallpapers.searchQuery = searchFilter
         }
@@ -132,10 +136,10 @@ Item {
                                 clip: true
                                 
                                 onTextChanged: {
-                                    if (!mainSelector.wallhavenMode) {
+                                    if (!mainSelector.wallhavenMode && !mainSelector.naiveMode) {
                                         Wallpapers.searchQuery = text
                                     } else if (text === "") {
-                                        WallhavenService.search("");
+                                        if (mainSelector.wallhavenMode) WallhavenService.search("");
                                     }
                                 }
                                 
@@ -152,7 +156,7 @@ Item {
 
                                 StyledText {
                                     visible: !headerSearch.text && !headerSearch.activeFocus
-                                    text: mainSelector.wallhavenMode ? "Search Wallhaven..." : "Search wallpapers..."
+                                    text: mainSelector.wallhavenMode ? "Search Wallhaven..." : (mainSelector.naiveMode ? "Search Na-ive..." : "Search wallpapers...")
                                     font.pixelSize: headerSearch.font.pixelSize
                                     color: Appearance.colors.colSubtext
                                     anchors.verticalCenter: parent.verticalCenter
@@ -199,6 +203,7 @@ Item {
                             
                             onClicked: {
                                 mainSelector.wallhavenMode = true;
+                                mainSelector.naiveMode = false;
                                 mainSelector.favMode = false;
                                 // Always search for fresh random results
                                 WallhavenService.search("");
@@ -214,6 +219,37 @@ Item {
                                     text: "Wallhaven"; Layout.fillWidth: true; 
                                     font.weight: wallhavenSideBtn.toggled ? Font.Bold : Font.Normal
                                     color: wallhavenSideBtn.toggled ? Appearance.colors.colOnPrimary : Appearance.colors.colOnLayer0
+                                }
+                            }
+                        }
+
+                        // --- Na-ive Collection Button ---
+                        RippleButton {
+                            id: naiveSideBtn
+                            Layout.fillWidth: true
+                            implicitHeight: 52 * Appearance.effectiveScale
+                            buttonRadius: 16 * Appearance.effectiveScale
+                            toggled: mainSelector.naiveMode
+                            colBackground: toggled ? Appearance.colors.colPrimary : Appearance.colors.colLayer1
+                            colBackgroundHover: toggled ? Appearance.colors.colPrimaryHover : Appearance.colors.colLayer1Hover
+                            
+                            onClicked: {
+                                mainSelector.wallhavenMode = false;
+                                mainSelector.naiveMode = true;
+                                mainSelector.favMode = false;
+                                NaIveWallpaperService.fetch();
+                            }
+
+                            RowLayout {
+                                anchors.fill: parent; anchors.leftMargin: 20 * Appearance.effectiveScale; spacing: 16 * Appearance.effectiveScale
+                                MaterialSymbol { 
+                                    text: "collections"; iconSize: 22 * Appearance.effectiveScale
+                                    color: naiveSideBtn.toggled ? Appearance.colors.colOnPrimary : Appearance.colors.colPrimary
+                                }
+                                StyledText { 
+                                    text: "NA-ive Walls"; Layout.fillWidth: true; 
+                                    font.weight: naiveSideBtn.toggled ? Font.Bold : Font.Normal
+                                    color: naiveSideBtn.toggled ? Appearance.colors.colOnPrimary : Appearance.colors.colOnLayer0
                                 }
                             }
                         }
@@ -236,7 +272,7 @@ Item {
                                 
                                 readonly property bool isFavBtn: modelData.path === "FAV_MODE"
                                 readonly property bool isActive: {
-                                    if (mainSelector.wallhavenMode) return false;
+                                    if (mainSelector.wallhavenMode || mainSelector.naiveMode) return false;
                                     if (isFavBtn) return mainSelector.favMode;
                                     return !mainSelector.favMode && mainSelector.normalizePath(Wallpapers.directory) === mainSelector.normalizePath(modelData.path);
                                 }
@@ -247,6 +283,7 @@ Item {
                                 
                                 onClicked: {
                                     mainSelector.wallhavenMode = false;
+                                    mainSelector.naiveMode = false;
                                     if (isFavBtn) {
                                         mainSelector.favMode = true;
                                     } else {
@@ -308,7 +345,7 @@ Item {
                             // Memory optimization: Load only what's necessary (about 1.5 extra screen heights)
                             cacheBuffer: Math.max(0, height * 1.5)
                             
-                            model: mainSelector.wallhavenMode ? WallhavenService.results : (mainSelector.favMode ? favModel : Wallpapers.folderModel)
+                            model: mainSelector.wallhavenMode ? WallhavenService.results : (mainSelector.naiveMode ? NaIveWallpaperService.results : (mainSelector.favMode ? favModel : Wallpapers.folderModel))
                             
                             onContentYChanged: {
                                 if (mainSelector.wallhavenMode && !WallhavenService.loading && contentY > contentHeight - height - (400 * Appearance.effectiveScale)) {
@@ -320,7 +357,7 @@ Item {
 
                             footer: Item {
                                 width: grid.width; height: 80 * Appearance.effectiveScale
-                                visible: mainSelector.wallhavenMode && WallhavenService.loading && grid.count > 0
+                                visible: (mainSelector.wallhavenMode && WallhavenService.loading && grid.count > 0) || (mainSelector.naiveMode && NaIveWallpaperService.loading && grid.count > 0)
                                 RowLayout {
                                     anchors.centerIn: parent
                                     spacing: 12 * Appearance.effectiveScale
@@ -360,14 +397,16 @@ Item {
                                 // EXPLICIT PROXY PROPERTIES TO FIX REFERENCE ERRORS
                                 readonly property Item selector: mainSelector.selectorItem
                                 readonly property bool inWallhavenMode: delegateRoot.selector.wallhavenMode
+                                readonly property bool inNaiveMode: delegateRoot.selector.naiveMode
                                 readonly property bool inFavMode: delegateRoot.selector.favMode
                                 
-                                readonly property string currentFilePath: delegateRoot.inWallhavenMode ? (model.full || "") : (delegateRoot.inFavMode ? (model.filePath || "") : (filePath || ""))
-                                readonly property string currentFileName: delegateRoot.inWallhavenMode ? ("wallhaven-" + (model.id || "")) : (delegateRoot.inFavMode ? (model.fileName || "") : (fileName || ""))
-                                readonly property string previewPath: delegateRoot.inWallhavenMode ? (model.preview || "") : ("file://" + currentFilePath)
+                                readonly property string currentFilePath: (delegateRoot.inWallhavenMode || delegateRoot.inNaiveMode) ? (model.full || "") : (delegateRoot.inFavMode ? (model.filePath || "") : (filePath || ""))
+                                readonly property string currentFileName: delegateRoot.inWallhavenMode ? ("wallhaven-" + (model.id || "")) : (delegateRoot.inNaiveMode ? model.filename : (delegateRoot.inFavMode ? (model.fileName || "") : (fileName || "")))
+                                readonly property string previewPath: (delegateRoot.inWallhavenMode || delegateRoot.inNaiveMode) ? (model.preview || "") : ("file://" + currentFilePath)
                                 
                                 readonly property string wallhavenId: {
                                     if (delegateRoot.inWallhavenMode) return model.id || "";
+                                    if (delegateRoot.inNaiveMode) return model.wallhaven_id || "";
                                     // Robust detection from local filename (e.g. wallhaven-XXXXX.jpg)
                                     let name = delegateRoot.currentFileName.toLowerCase();
                                     if (name.startsWith("wallhaven-")) {
@@ -387,7 +426,7 @@ Item {
                                         Layout.fillWidth: true; Layout.fillHeight: true
                                         Rectangle {
                                             id: imgPlate
-                                            anchors.fill: parent; radius: 18 * Appearance.effectiveScale; color: Appearance.colors.colLayer2
+                                            anchors.fill: parent; radius: 18 * Appearance.effectiveScale; color: delegateRoot.inNaiveMode ? (model.color || Appearance.colors.colLayer2) : Appearance.colors.colLayer2
                                             layer.enabled: true
                                             layer.effect: OpacityMask {
                                                 maskSource: Rectangle { width: imgPlate.width; height: imgPlate.height; radius: 18 * Appearance.effectiveScale }
@@ -398,13 +437,13 @@ Item {
                                             ThumbnailImage {
                                                 anchors.fill: parent
                                                 sourcePath: currentFilePath 
-                                                visible: !delegateRoot.inWallhavenMode && currentFilePath !== ""
+                                                visible: !delegateRoot.inWallhavenMode && !delegateRoot.inNaiveMode && currentFilePath !== ""
                                             }
 
                                             Image {
-                                                anchors.fill: parent; source: delegateRoot.inWallhavenMode ? previewPath : ""
+                                                anchors.fill: parent; source: (delegateRoot.inWallhavenMode || delegateRoot.inNaiveMode) ? previewPath : ""
                                                 fillMode: Image.PreserveAspectCrop
-                                                visible: delegateRoot.inWallhavenMode && source != ""
+                                                visible: (delegateRoot.inWallhavenMode || delegateRoot.inNaiveMode) && source != ""
                                                 asynchronous: true; cache: true
                                             }
 
@@ -424,9 +463,9 @@ Item {
                                             
                                             MouseArea {
                                                 id: mArea; anchors.fill: parent; hoverEnabled: true
-                                                // Arrow cursor in wallhaven mode as requested
-                                                cursorShape: delegateRoot.inWallhavenMode ? Qt.ArrowCursor : Qt.PointingHandCursor
-                                                enabled: !delegateRoot.inWallhavenMode
+                                                // Arrow cursor in online modes as requested
+                                                cursorShape: (delegateRoot.inWallhavenMode || delegateRoot.inNaiveMode) ? Qt.ArrowCursor : Qt.PointingHandCursor
+                                                enabled: !delegateRoot.inWallhavenMode && !delegateRoot.inNaiveMode
                                                 onClicked: {
                                                     if (currentFilePath !== "") {
                                                         delegateRoot.selector.selectWallpaper("file://" + currentFilePath)
@@ -448,6 +487,7 @@ Item {
                                                     onClicked: {
                                                         let s = delegateRoot.selector;
                                                         s.wallhavenMode = true;
+                                                        s.naiveMode = false;
                                                         s.favMode = false;
                                                         s.searchFilter = "wallhaven-" + delegateRoot.wallhavenId;
                                                         WallhavenService.search(delegateRoot.wallhavenId, true);
@@ -457,7 +497,7 @@ Item {
 
                                                 RippleButton {
                                                     id: favBtn
-                                                    visible: !delegateRoot.inWallhavenMode && currentFilePath !== ""
+                                                    visible: !delegateRoot.inWallhavenMode && !delegateRoot.inNaiveMode && currentFilePath !== ""
                                                     implicitWidth: 36 * Appearance.effectiveScale; implicitHeight: 36 * Appearance.effectiveScale; buttonRadius: 18 * Appearance.effectiveScale; colBackground: "transparent"
                                                     readonly property bool isFav: currentFilePath !== "" && Wallpapers.isFavorite(currentFilePath)
                                                     MaterialSymbol {
@@ -472,25 +512,37 @@ Item {
 
                                                 RippleButton {
                                                     id: downloadOnlyBtn
-                                                    visible: delegateRoot.inWallhavenMode && (model.full || "") !== ""
+                                                    visible: (delegateRoot.inWallhavenMode || delegateRoot.inNaiveMode) && (model.full || "") !== ""
                                                     implicitWidth: 36 * Appearance.effectiveScale; implicitHeight: 36 * Appearance.effectiveScale; buttonRadius: 18 * Appearance.effectiveScale; colBackground: "transparent"
                                                     MaterialSymbol {
                                                         anchors.centerIn: parent; text: "download"; iconSize: 20 * Appearance.effectiveScale; color: "white"
                                                         fill: parent.hovered ? 1 : 0
                                                     }
-                                                    onClicked: WallhavenService.download(model.full, model.id, model.file_type, false)
+                                                    onClicked: {
+                                                        if (delegateRoot.inWallhavenMode) {
+                                                            WallhavenService.download(model.full, model.id, model.file_type, false);
+                                                        } else {
+                                                            NaIveWallpaperService.download(model.full, model.filename, false);
+                                                        }
+                                                    }
                                                     StyledToolTip { text: "Download to folder" }
                                                 }
 
                                                 RippleButton {
                                                     id: downloadApplyBtn
-                                                    visible: delegateRoot.inWallhavenMode && (model.full || "") !== ""
+                                                    visible: (delegateRoot.inWallhavenMode || delegateRoot.inNaiveMode) && (model.full || "") !== ""
                                                     implicitWidth: 36 * Appearance.effectiveScale; implicitHeight: 36 * Appearance.effectiveScale; buttonRadius: 18 * Appearance.effectiveScale; colBackground: "transparent"
                                                     MaterialSymbol {
                                                         anchors.centerIn: parent; text: "wallpaper"; iconSize: 20 * Appearance.effectiveScale; color: "white"
                                                         fill: parent.hovered ? 1 : 0
                                                     }
-                                                    onClicked: WallhavenService.download(model.full, model.id, model.file_type, true)
+                                                    onClicked: {
+                                                        if (delegateRoot.inWallhavenMode) {
+                                                            WallhavenService.download(model.full, model.id, model.file_type, true);
+                                                        } else {
+                                                            NaIveWallpaperService.download(model.full, model.filename, true);
+                                                        }
+                                                    }
                                                     StyledToolTip { text: "Download and Apply" }
                                                 }
                                             }
@@ -518,7 +570,7 @@ Item {
                             ColumnLayout {
                                 anchors.centerIn: parent; visible: grid.count === 0; spacing: 12 * Appearance.effectiveScale
                                 MaterialSymbol {
-                                    visible: mainSelector.wallhavenMode && WallhavenService.loading
+                                    visible: (mainSelector.wallhavenMode && WallhavenService.loading) || (mainSelector.naiveMode && NaIveWallpaperService.loading)
                                     text: "progress_activity"; iconSize: 32 * Appearance.effectiveScale; color: Appearance.colors.colPrimary
                                     Layout.alignment: Qt.AlignHCenter
                                     RotationAnimation on rotation { from: 0; to: 360; duration: 1000; loops: Animation.Infinite; running: parent.visible }
@@ -530,9 +582,14 @@ Item {
                                             if (WallhavenService.loading) return "Searching Wallhaven...";
                                             return "No online wallpapers found";
                                         }
+                                        if (mainSelector.naiveMode) {
+                                            if (NaIveWallpaperService.errorMessage !== "") return NaIveWallpaperService.errorMessage;
+                                            if (NaIveWallpaperService.loading) return "Fetching Na-ive collection...";
+                                            return "No wallpapers in collection";
+                                        }
                                         return mainSelector.favMode ? "No favorite wallpapers" : "No wallpapers found";
                                     }
-                                    color: WallhavenService.errorMessage !== "" ? Appearance.m3colors.m3error : Appearance.colors.colSubtext
+                                    color: (WallhavenService.errorMessage !== "" || NaIveWallpaperService.errorMessage !== "") ? Appearance.m3colors.m3error : Appearance.colors.colSubtext
                                     Layout.alignment: Qt.AlignHCenter
                                 }
                             }

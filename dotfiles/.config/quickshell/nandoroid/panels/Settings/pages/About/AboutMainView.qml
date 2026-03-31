@@ -227,80 +227,92 @@ ColumnLayout {
                     spacing: 4 * Appearance.effectiveScale
 
                     SegmentedWrapper {
+                        id: sourceLinkWrapper
                         Layout.fillWidth: true
                         implicitHeight: 52 * Appearance.effectiveScale
                         orientation: Qt.Vertical
                         maxRadius: 20 * Appearance.effectiveScale
                         color: Appearance.m3colors.m3surfaceContainerHigh
 
-                        RowLayout {
+                        RippleButton {
                             anchors.fill: parent
-                            anchors.leftMargin: 20 * Appearance.effectiveScale
-                            anchors.rightMargin: 20 * Appearance.effectiveScale
-                            spacing: 12 * Appearance.effectiveScale
+                            colBackground: "transparent"
+                            onClicked: Qt.openUrlExternally("https://github.com/na-ive/nandoroid-shell")
                             
-                            MaterialSymbol {
-                                text: "code"
-                                iconSize: 20 * Appearance.effectiveScale
-                                color: Appearance.colors.colPrimary
-                            }
-                            StyledText {
-                                Layout.fillWidth: true
-                                text: "Source Code"
-                                font.pixelSize: Appearance.font.pixelSize.normal
-                                color: Appearance.colors.colOnLayer0
-                            }
-                            StyledText {
-                                text: "GitHub Repository"
-                                font.pixelSize: Appearance.font.pixelSize.small
-                                color: Appearance.colors.colPrimary
+                            // Explicitly inherit radii from SegmentedWrapper for hover alignment
+                            topLeftRadius: sourceLinkWrapper.rTopLeft
+                            topRightRadius: sourceLinkWrapper.rTopRight
+                            bottomLeftRadius: sourceLinkWrapper.rBottomLeft
+                            bottomRightRadius: sourceLinkWrapper.rBottomRight
+
+                            RowLayout {
+                                anchors.fill: parent
+                                anchors.leftMargin: 20 * Appearance.effectiveScale
+                                anchors.rightMargin: 20 * Appearance.effectiveScale
+                                spacing: 12 * Appearance.effectiveScale
                                 
-                                MouseArea {
-                                    anchors.fill: parent
-                                    cursorShape: Qt.PointingHandCursor
-                                    onClicked: Qt.openUrlExternally("https://github.com/na-ive/nandoroid-shell")
+                                MaterialSymbol {
+                                    text: "code"
+                                    iconSize: 20 * Appearance.effectiveScale
+                                    color: Appearance.colors.colPrimary
+                                }
+                                StyledText {
+                                    Layout.fillWidth: true
+                                    text: "Source Code"
+                                    font.pixelSize: Appearance.font.pixelSize.normal
+                                    color: Appearance.colors.colOnLayer0
+                                }
+                                StyledText {
+                                    text: "GitHub Repository"
+                                    font.pixelSize: Appearance.font.pixelSize.small
+                                    color: Appearance.colors.colPrimary
                                 }
                             }
                         }
                     }
 
                     SegmentedWrapper {
+                        id: creditsLinkWrapper
                         Layout.fillWidth: true
                         implicitHeight: 52 * Appearance.effectiveScale
                         orientation: Qt.Vertical
                         maxRadius: 20 * Appearance.effectiveScale
                         color: Appearance.m3colors.m3surfaceContainerHigh
 
-                        RowLayout {
-                            anchors.fill: parent
-                            anchors.leftMargin: 20 * Appearance.effectiveScale
-                            anchors.rightMargin: 12 * Appearance.effectiveScale
-                            spacing: 12 * Appearance.effectiveScale
-                            
-                            MaterialSymbol {
-                                text: "favorite"
-                                iconSize: 20 * Appearance.effectiveScale
-                                color: "#ff4081"
-                            }
-                            StyledText {
-                                Layout.fillWidth: true
-                                text: "Special Thanks"
-                                font.pixelSize: Appearance.font.pixelSize.normal
-                                color: Appearance.colors.colOnLayer0
-                            }
-                            MaterialSymbol {
-                                text: "chevron_right"
-                                iconSize: 20 * Appearance.effectiveScale
-                                color: Appearance.colors.colSubtext
-                            }
-                        }
-
                         RippleButton {
                             anchors.fill: parent
                             colBackground: "transparent"
-                            onClicked: pushView( "credits")
+                            onClicked: pushView("credits")
                             
-                            buttonRadius: Appearance.rounding.button
+                            // Explicitly inherit radii from SegmentedWrapper for hover alignment
+                            topLeftRadius: creditsLinkWrapper.rTopLeft
+                            topRightRadius: creditsLinkWrapper.rTopRight
+                            bottomLeftRadius: creditsLinkWrapper.rBottomLeft
+                            bottomRightRadius: creditsLinkWrapper.rBottomRight
+
+                            RowLayout {
+                                anchors.fill: parent
+                                anchors.leftMargin: 20 * Appearance.effectiveScale
+                                anchors.rightMargin: 12 * Appearance.effectiveScale
+                                spacing: 12 * Appearance.effectiveScale
+                                
+                                MaterialSymbol {
+                                    text: "favorite"
+                                    iconSize: 20 * Appearance.effectiveScale
+                                    color: "#ff4081"
+                                }
+                                StyledText {
+                                    Layout.fillWidth: true
+                                    text: "Special Thanks"
+                                    font.pixelSize: Appearance.font.pixelSize.normal
+                                    color: Appearance.colors.colOnLayer0
+                                }
+                                MaterialSymbol {
+                                    text: "chevron_right"
+                                    iconSize: 20 * Appearance.effectiveScale
+                                    color: Appearance.colors.colSubtext
+                                }
+                            }
                         }
                     }
                 }

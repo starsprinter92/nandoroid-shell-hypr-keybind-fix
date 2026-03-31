@@ -19,7 +19,7 @@ Item {
 
     Behavior on rotation {
         enabled: Config.options.appearance.clock.analog.constantlyRotate
-        animation: RotationAnimation {
+        RotationAnimation {
             direction: RotationAnimation.Clockwise
             duration: 1000
             easing.type: Easing.InOutQuad

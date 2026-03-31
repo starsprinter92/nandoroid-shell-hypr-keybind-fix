@@ -15,7 +15,8 @@ import Quickshell.Widgets
 Slider {
     id: root
 
-    property list<real> stopIndicatorValues: []
+    property real defaultValue: -1
+    property list<real> stopIndicatorValues: defaultValue >= 0 ? [defaultValue] : []
     enum Configuration {
         Wavy = 4,
         X0 = 3,

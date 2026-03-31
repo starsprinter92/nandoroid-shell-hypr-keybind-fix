@@ -33,6 +33,7 @@ Singleton {
     property string status: "Idle"
     property bool wttrInHealthy: true
     property var lastWttrInFail: 0
+    property bool _isFallbackCycle: false
 
     // --- Paths (Cleaned from file:// for shell compatibility) ---
     function cleanPath(p) {
@@ -97,6 +98,7 @@ Singleton {
             if (diff < 5) return; 
         }
         
+        root._isFallbackCycle = false; // Reset cycle on new manual/timer fetch
         root.status = "Connecting...";
         if (!silent) loading = true;
         
@@ -182,9 +184,15 @@ Singleton {
 
         onExited: (exitCode) => {
             if (exitCode !== 0) {
-                root.wttrInHealthy = false;
-                root.lastWttrInFail = new Date().getTime();
-                fallbackTrigger();
+                if (!root._isFallbackCycle) {
+                    root._isFallbackCycle = true;
+                    root.wttrInHealthy = false;
+                    root.lastWttrInFail = new Date().getTime();
+                    fallbackTrigger();
+                } else {
+                    root.status = "Offline / API Error";
+                    root.loading = false;
+                }
             } else {
                 root.status = "Updated via wttr.in";
                 root.loading = false;
@@ -285,8 +293,14 @@ Singleton {
         
         onExited: (exitCode) => {
             if (exitCode !== 0) {
-                root.status = "API Error, retrying...";
-                weatherProc.running = true; // Try wttr.in as last resort
+                if (!root._isFallbackCycle) {
+                    root._isFallbackCycle = true;
+                    root.status = "API Error, retrying...";
+                    weatherProc.running = true; // Try wttr.in as last resort
+                } else {
+                    root.status = "Offline / API Error";
+                    root.loading = false;
+                }
             } else {
                 root.loading = false;
             }

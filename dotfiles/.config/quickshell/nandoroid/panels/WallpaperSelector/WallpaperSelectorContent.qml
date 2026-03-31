@@ -143,6 +143,7 @@ Item {
 
     function close() { 
         WallhavenService.results.clear();
+        NaIveWallpaperService.results.clear();
         mainSelector.closed() 
     }
 

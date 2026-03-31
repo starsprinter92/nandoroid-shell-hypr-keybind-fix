@@ -1,3 +1,29 @@
+# Nandoroid Shell v1.3.1 Release Notes
+
+## Overview
+This maintenance update addresses critical path resolution issues for screenshot storage and shell versioning. It also introduces significant typographic refinements for better visual balance and improves the interactivity of the About page. Stability is further enhanced with improved search indexing and a reliable temporal auto-hide logic for status bar hints.
+
+## Changelog
+
+**System & Path Resolution**
+- Resolve shell metadata and versioning path issues by centralizing files in `~/.config/nandoroid/`
+- Fix default screenshot and recording save paths by ensuring they are protocol-free (removing `file:///` conflicts)
+- Implement automatic protocol trimming when manually entering storage paths in settings
+- Update installer and updater scripts to handle new metadata locations correctly
+
+**UI/UX & Typography**
+- Globally refine typography by transitioning from `Font.Bold` to `Font.DemiBold` for a cleaner look across all scales
+- Standardize header sizes and weights across Settings, About, and Service panels
+- Unify "Off" state colors for system interface toggles to match Material 3 container standards
+- Improve About page link cards with full clickability and precise hover rounding that respects segmented boundaries
+
+**Functional Fixes**
+- Implement 3-second temporal auto-hide for Status Bar ScrollHints to prevent visual "freezing"
+- Enhance search indexing for Screenshot and Recording settings in the global search bar
+- Implement substring matching in SearchHandler for more intuitive settings discovery
+
+---
+
 # Nandoroid Shell v1.3.0 Release Notes
 
 ## Overview

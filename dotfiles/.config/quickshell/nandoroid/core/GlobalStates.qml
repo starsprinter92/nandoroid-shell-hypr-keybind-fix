@@ -36,6 +36,7 @@ Singleton {
     property bool trayOverflowOpen: false
     property real trayPosX: 0
     property var activeMediaNotchScreen: null
+    property var activeTrayItem: null
     property var activeScreen: Quickshell.screens[0]
     property string wallpaperSelectorTarget: "desktop" // "desktop" or "lock"
     

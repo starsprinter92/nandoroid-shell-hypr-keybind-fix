@@ -14,6 +14,7 @@ Singleton {
     id: root
 
     signal screenshotTaken(string path)
+    signal closePopups()
 
     property bool statusBarVisible: true
     property bool notificationCenterOpen: false

@@ -317,204 +317,215 @@ Item {
                 Item {
                     Layout.fillHeight: true
                     Layout.preferredWidth: 240 * Appearance.effectiveScale
+                    
                     ColumnLayout {
                         anchors.fill: parent
                         anchors.margins: 8 * Appearance.effectiveScale
-                        spacing: 4 * Appearance.effectiveScale
+                        spacing: 8 * Appearance.effectiveScale
 
-                        // --- Top Special Button (Wallhaven - Online) ---
-                        RippleButton {
-                            id: wallhavenSideBtn
+                        ScrollView {
+                            id: sidebarScroll
                             Layout.fillWidth: true
-                            implicitHeight: 52 * Appearance.effectiveScale
-                            buttonRadius: 16 * Appearance.effectiveScale
-                            toggled: mainSelector.wallhavenMode
-                            colBackground: toggled ? Appearance.colors.colPrimary : Appearance.colors.colLayer1
-                            colBackgroundHover: toggled ? Appearance.colors.colPrimaryHover : Appearance.colors.colLayer1Hover
-                            
-                            onClicked: mainSelector.switchMode("wallhaven")
+                            Layout.fillHeight: true
+                            clip: true
+                            ScrollBar.vertical: StyledScrollBar {}
 
-                            RowLayout {
-                                anchors.fill: parent; anchors.leftMargin: 20 * Appearance.effectiveScale; spacing: 16 * Appearance.effectiveScale
-                                MaterialSymbol { 
-                                    text: "travel_explore"; iconSize: 22 * Appearance.effectiveScale
-                                    color: wallhavenSideBtn.toggled ? Appearance.colors.colOnPrimary : Appearance.colors.colPrimary
-                                }
-                                StyledText { 
-                                    text: "Wallhaven"; Layout.fillWidth: true; 
-                                    font.weight: wallhavenSideBtn.toggled ? Font.DemiBold : Font.Normal
-                                    color: wallhavenSideBtn.toggled ? Appearance.colors.colOnPrimary : Appearance.colors.colOnLayer0
-                                }
-                            }
-                        }
+                            Column {
+                                width: sidebarScroll.availableWidth
+                                spacing: 4 * Appearance.effectiveScale
 
-                        // --- NA-ive Walls Collection Button ---
-                        RippleButton {
-                            id: naiveSideBtn
-                            Layout.fillWidth: true
-                            implicitHeight: 52 * Appearance.effectiveScale
-                            buttonRadius: 16 * Appearance.effectiveScale
-                            toggled: mainSelector.naiveMode
-                            colBackground: toggled ? Appearance.colors.colPrimary : Appearance.colors.colLayer1
-                            colBackgroundHover: toggled ? Appearance.colors.colPrimaryHover : Appearance.colors.colLayer1Hover
-                            
-                            onClicked: mainSelector.switchMode("naive")
-
-                            RowLayout {
-                                anchors.fill: parent; anchors.leftMargin: 20 * Appearance.effectiveScale; spacing: 16 * Appearance.effectiveScale
-                                MaterialSymbol { 
-                                    text: "collections"; iconSize: 22 * Appearance.effectiveScale
-                                    color: naiveSideBtn.toggled ? Appearance.colors.colOnPrimary : Appearance.colors.colPrimary
-                                }
-                                StyledText { 
-                                    text: "NA-ive Walls"; Layout.fillWidth: true; 
-                                    font.weight: naiveSideBtn.toggled ? Font.DemiBold : Font.Normal
-                                    color: naiveSideBtn.toggled ? Appearance.colors.colOnPrimary : Appearance.colors.colOnLayer0
-                                }
-                            }
-                        }
-
-                        Item { Layout.preferredHeight: 12 * Appearance.effectiveScale } // Gap separator
-
-                        // --- Favourites (Now at the top of local) ---
-                        RippleButton {
-                            id: favSideBtn
-                            Layout.fillWidth: true
-                            implicitHeight: 52 * Appearance.effectiveScale
-                            buttonRadius: 26 * Appearance.effectiveScale
-                            toggled: mainSelector.favMode
-                            colBackground: "transparent"
-                            colBackgroundToggled: Appearance.m3colors.m3primaryContainer
-                            
-                            onClicked: mainSelector.switchMode("fav")
-                            
-                            RowLayout {
-                                anchors.fill: parent; anchors.leftMargin: 20 * Appearance.effectiveScale; spacing: 16 * Appearance.effectiveScale
-                                MaterialSymbol { 
-                                    text: "favorite"; iconSize: 22 * Appearance.effectiveScale
-                                    color: favSideBtn.toggled ? Appearance.m3colors.m3onPrimaryContainer : Appearance.colors.colOnLayer0
-                                }
-                                StyledText { 
-                                    text: "Favourites"; Layout.fillWidth: true; 
-                                    font.weight: favSideBtn.toggled ? Font.DemiBold : Font.Normal
-                                    color: favSideBtn.toggled ? Appearance.m3colors.m3onPrimaryContainer : Appearance.colors.colOnLayer0
-                                }
-                            }
-                        }
-
-                        // --- Local Group (Standard Folders) ---
-                        Repeater {
-                            model: [
-                                { icon: "home", name: "Home", path: Directories.home },
-                                { icon: "image", name: "Pictures", path: Directories.pictures },
-                                { icon: "wallpaper", name: "Wallpapers", path: Directories.home + "/Pictures/Wallpapers" }
-                            ]
-                            delegate: RippleButton {
-                                id: folderBtn
-                                Layout.fillWidth: true
-                                implicitHeight: 52 * Appearance.effectiveScale
-                                buttonRadius: 26 * Appearance.effectiveScale
-                                
-                                readonly property bool isActive: !mainSelector.wallhavenMode && !mainSelector.naiveMode && !mainSelector.favMode && mainSelector.normalizePath(Wallpapers.directory) === mainSelector.normalizePath(modelData.path)
-                                
-                                toggled: isActive
-                                colBackground: "transparent"
-                                colBackgroundToggled: Appearance.m3colors.m3primaryContainer
-                                
-                                onClicked: {
-                                    mainSelector.switchMode("local");
-                                    Wallpapers.directory = "file://" + mainSelector.normalizePath(modelData.path);
-                                }
-                                
-                                RowLayout {
-                                    anchors.fill: parent; anchors.leftMargin: 20 * Appearance.effectiveScale; spacing: 16 * Appearance.effectiveScale
-                                    MaterialSymbol { 
-                                        text: modelData.icon; iconSize: 22 * Appearance.effectiveScale
-                                        color: folderBtn.toggled ? Appearance.m3colors.m3onPrimaryContainer : Appearance.colors.colOnLayer0
-                                    }
-                                    StyledText { 
-                                        text: modelData.name; Layout.fillWidth: true; 
-                                        font.weight: folderBtn.toggled ? Font.DemiBold : Font.Normal
-                                        color: folderBtn.toggled ? Appearance.m3colors.m3onPrimaryContainer : Appearance.colors.colOnLayer0
-                                    }
-                                }
-                            }
-                        }
-
-                        // --- Custom Folders ---
-                        Repeater {
-                            model: customFoldersModel
-                            delegate: RippleButton {
-                                id: customFolderBtn
-                                Layout.fillWidth: true
-                                implicitHeight: 52 * Appearance.effectiveScale
-                                buttonRadius: 26 * Appearance.effectiveScale
-                                
-                                readonly property bool isActive: !mainSelector.wallhavenMode && !mainSelector.naiveMode && !mainSelector.favMode && mainSelector.normalizePath(Wallpapers.directory) === mainSelector.normalizePath(model.path)
-                                
-                                toggled: isActive
-                                colBackground: "transparent"
-                                colBackgroundToggled: Appearance.m3colors.m3primaryContainer
-                                
-                                onClicked: {
-                                    mainSelector.switchMode("local");
-                                    Wallpapers.directory = "file://" + mainSelector.normalizePath(model.path);
-                                }
-                                
-                                RowLayout {
-                                    anchors.fill: parent; anchors.leftMargin: 20 * Appearance.effectiveScale; anchors.rightMargin: 8 * Appearance.effectiveScale; spacing: 16 * Appearance.effectiveScale
-                                    MaterialSymbol { 
-                                        text: "folder"; iconSize: 22 * Appearance.effectiveScale
-                                        color: customFolderBtn.toggled ? Appearance.m3colors.m3onPrimaryContainer : Appearance.colors.colOnLayer0
-                                    }
-                                    StyledText { 
-                                        text: model.name; Layout.fillWidth: true; elide: Text.ElideRight
-                                        font.weight: customFolderBtn.toggled ? Font.DemiBold : Font.Normal
-                                        color: customFolderBtn.toggled ? Appearance.m3colors.m3onPrimaryContainer : Appearance.colors.colOnLayer0
-                                    }
+                                // --- Top Special Button (Wallhaven - Online) ---
+                                RippleButton {
+                                    id: wallhavenSideBtn
+                                    width: parent.width
+                                    implicitHeight: 52 * Appearance.effectiveScale
+                                    buttonRadius: 16 * Appearance.effectiveScale
+                                    toggled: mainSelector.wallhavenMode
+                                    colBackground: toggled ? Appearance.colors.colPrimary : Appearance.colors.colLayer1
+                                    colBackgroundHover: toggled ? Appearance.colors.colPrimaryHover : Appearance.colors.colLayer1Hover
                                     
-                                    RippleButton {
-                                        visible: customFolderBtn.hovered || customFolderBtn.toggled
-                                        implicitWidth: 32 * Appearance.effectiveScale; implicitHeight: 32 * Appearance.effectiveScale; buttonRadius: 16 * Appearance.effectiveScale
+                                    onClicked: mainSelector.switchMode("wallhaven")
+
+                                    RowLayout {
+                                        anchors.fill: parent; anchors.leftMargin: 20 * Appearance.effectiveScale; spacing: 16 * Appearance.effectiveScale
+                                        MaterialSymbol { 
+                                            text: "travel_explore"; iconSize: 22 * Appearance.effectiveScale
+                                            color: wallhavenSideBtn.toggled ? Appearance.colors.colOnPrimary : Appearance.colors.colPrimary
+                                        }
+                                        StyledText { 
+                                            text: "Wallhaven"; Layout.fillWidth: true; 
+                                            font.weight: wallhavenSideBtn.toggled ? Font.DemiBold : Font.Normal
+                                            color: wallhavenSideBtn.toggled ? Appearance.colors.colOnPrimary : Appearance.colors.colOnLayer0
+                                        }
+                                    }
+                                }
+
+                                // --- NA-ive Walls Collection Button ---
+                                RippleButton {
+                                    id: naiveSideBtn
+                                    width: parent.width
+                                    implicitHeight: 52 * Appearance.effectiveScale
+                                    buttonRadius: 16 * Appearance.effectiveScale
+                                    toggled: mainSelector.naiveMode
+                                    colBackground: toggled ? Appearance.colors.colPrimary : Appearance.colors.colLayer1
+                                    colBackgroundHover: toggled ? Appearance.colors.colPrimaryHover : Appearance.colors.colLayer1Hover
+                                    
+                                    onClicked: mainSelector.switchMode("naive")
+
+                                    RowLayout {
+                                        anchors.fill: parent; anchors.leftMargin: 20 * Appearance.effectiveScale; spacing: 16 * Appearance.effectiveScale
+                                        MaterialSymbol { 
+                                            text: "collections"; iconSize: 22 * Appearance.effectiveScale
+                                            color: naiveSideBtn.toggled ? Appearance.colors.colOnPrimary : Appearance.colors.colPrimary
+                                        }
+                                        StyledText { 
+                                            text: "NA-ive Walls"; Layout.fillWidth: true; 
+                                            font.weight: naiveSideBtn.toggled ? Font.DemiBold : Font.Normal
+                                            color: naiveSideBtn.toggled ? Appearance.colors.colOnPrimary : Appearance.colors.colOnLayer0
+                                        }
+                                    }
+                                }
+
+                                Item { width: parent.width; height: 12 * Appearance.effectiveScale } // Gap separator
+
+                                // --- Favourites (Now at the top of local) ---
+                                RippleButton {
+                                    id: favSideBtn
+                                    width: parent.width
+                                    implicitHeight: 52 * Appearance.effectiveScale
+                                    buttonRadius: 26 * Appearance.effectiveScale
+                                    toggled: mainSelector.favMode
+                                    colBackground: "transparent"
+                                    colBackgroundToggled: Appearance.m3colors.m3primaryContainer
+                                    
+                                    onClicked: mainSelector.switchMode("fav")
+                                    
+                                    RowLayout {
+                                        anchors.fill: parent; anchors.leftMargin: 20 * Appearance.effectiveScale; spacing: 16 * Appearance.effectiveScale
+                                        MaterialSymbol { 
+                                            text: "favorite"; iconSize: 22 * Appearance.effectiveScale
+                                            color: favSideBtn.toggled ? Appearance.m3colors.m3onPrimaryContainer : Appearance.colors.colOnLayer0
+                                        }
+                                        StyledText { 
+                                            text: "Favourites"; Layout.fillWidth: true; 
+                                            font.weight: favSideBtn.toggled ? Font.DemiBold : Font.Normal
+                                            color: favSideBtn.toggled ? Appearance.m3colors.m3onPrimaryContainer : Appearance.colors.colOnLayer0
+                                        }
+                                    }
+                                }
+
+                                // --- Local Group (Standard Folders) ---
+                                Repeater {
+                                    model: [
+                                        { icon: "home", name: "Home", path: Directories.home },
+                                        { icon: "image", name: "Pictures", path: Directories.pictures },
+                                        { icon: "wallpaper", name: "Wallpapers", path: Directories.home + "/Pictures/Wallpapers" }
+                                    ]
+                                    delegate: RippleButton {
+                                        id: folderBtn
+                                        width: parent.width
+                                        implicitHeight: 52 * Appearance.effectiveScale
+                                        buttonRadius: 26 * Appearance.effectiveScale
+                                        
+                                        readonly property bool isActive: !mainSelector.wallhavenMode && !mainSelector.naiveMode && !mainSelector.favMode && mainSelector.normalizePath(Wallpapers.directory) === mainSelector.normalizePath(modelData.path)
+                                        
+                                        toggled: isActive
                                         colBackground: "transparent"
+                                        colBackgroundToggled: Appearance.m3colors.m3primaryContainer
+                                        
                                         onClicked: {
-                                            let current = (Config.options.appearance.background.customFolders || []).slice();
-                                            const idx = current.indexOf(model.path);
-                                            if (idx !== -1) {
-                                                current.splice(idx, 1);
-                                                Config.options.appearance.background.customFolders = current;
-                                                mainSelector.refreshCustomFolders();
+                                            mainSelector.switchMode("local");
+                                            Wallpapers.directory = "file://" + mainSelector.normalizePath(modelData.path);
+                                        }
+                                        
+                                        RowLayout {
+                                            anchors.fill: parent; anchors.leftMargin: 20 * Appearance.effectiveScale; spacing: 16 * Appearance.effectiveScale
+                                            MaterialSymbol { 
+                                                text: modelData.icon; iconSize: 22 * Appearance.effectiveScale
+                                                color: folderBtn.toggled ? Appearance.m3colors.m3onPrimaryContainer : Appearance.colors.colOnLayer0
+                                            }
+                                            StyledText { 
+                                                text: modelData.name; Layout.fillWidth: true; 
+                                                font.weight: folderBtn.toggled ? Font.DemiBold : Font.Normal
+                                                color: folderBtn.toggled ? Appearance.m3colors.m3onPrimaryContainer : Appearance.colors.colOnLayer0
                                             }
                                         }
-                                        MaterialSymbol { anchors.centerIn: parent; text: "delete"; iconSize: 18 * Appearance.effectiveScale; color: Appearance.m3colors.m3error }
                                     }
                                 }
-                                StyledToolTip { text: model.path }
+
+                                // --- Custom Folders ---
+                                Repeater {
+                                    model: customFoldersModel
+                                    delegate: RippleButton {
+                                        id: customFolderBtn
+                                        width: parent.width
+                                        implicitHeight: 52 * Appearance.effectiveScale
+                                        buttonRadius: 26 * Appearance.effectiveScale
+                                        
+                                        readonly property bool isActive: !mainSelector.wallhavenMode && !mainSelector.naiveMode && !mainSelector.favMode && mainSelector.normalizePath(Wallpapers.directory) === mainSelector.normalizePath(model.path)
+                                        
+                                        toggled: isActive
+                                        colBackground: "transparent"
+                                        colBackgroundToggled: Appearance.m3colors.m3primaryContainer
+                                        
+                                        onClicked: {
+                                            mainSelector.switchMode("local");
+                                            Wallpapers.directory = "file://" + mainSelector.normalizePath(model.path);
+                                        }
+                                        
+                                        RowLayout {
+                                            anchors.fill: parent; anchors.leftMargin: 20 * Appearance.effectiveScale; anchors.rightMargin: 8 * Appearance.effectiveScale; spacing: 16 * Appearance.effectiveScale
+                                            MaterialSymbol { 
+                                                text: "folder"; iconSize: 22 * Appearance.effectiveScale
+                                                color: customFolderBtn.toggled ? Appearance.m3colors.m3onPrimaryContainer : Appearance.colors.colOnLayer0
+                                            }
+                                            StyledText { 
+                                                text: model.name; Layout.fillWidth: true; elide: Text.ElideRight
+                                                font.weight: customFolderBtn.toggled ? Font.DemiBold : Font.Normal
+                                                color: customFolderBtn.toggled ? Appearance.m3colors.m3onPrimaryContainer : Appearance.colors.colOnLayer0
+                                            }
+                                            
+                                            RippleButton {
+                                                visible: customFolderBtn.hovered || customFolderBtn.toggled
+                                                implicitWidth: 32 * Appearance.effectiveScale; implicitHeight: 32 * Appearance.effectiveScale; buttonRadius: 16 * Appearance.effectiveScale
+                                                colBackground: "transparent"
+                                                onClicked: {
+                                                    let current = (Config.options.appearance.background.customFolders || []).slice();
+                                                    const idx = current.indexOf(model.path);
+                                                    if (idx !== -1) {
+                                                        current.splice(idx, 1);
+                                                        Config.options.appearance.background.customFolders = current;
+                                                        mainSelector.refreshCustomFolders();
+                                                    }
+                                                }
+                                                MaterialSymbol { anchors.centerIn: parent; text: "delete"; iconSize: 18 * Appearance.effectiveScale; color: Appearance.m3colors.m3error }
+                                            }
+                                        }
+                                        StyledToolTip { text: model.path }
+                                    }
+                                }
+
+                                // --- Add Folder Button ---
+                                RippleButton {
+                                    width: parent.width
+                                    implicitHeight: 52 * Appearance.effectiveScale
+                                    buttonRadius: 26 * Appearance.effectiveScale
+                                    colBackground: "transparent"
+                                    onClicked: Wallpapers.browseFolder()
+                                    
+                                    RowLayout {
+                                        anchors.fill: parent; anchors.leftMargin: 20 * Appearance.effectiveScale; spacing: 16 * Appearance.effectiveScale
+                                        MaterialSymbol { text: "add"; iconSize: 22 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
+                                        StyledText { text: "Add Folder"; color: Appearance.colors.colOnLayer0 }
+                                    }
+                                }
                             }
                         }
 
-                        // --- Add Folder Button ---
-                        RippleButton {
-                            Layout.fillWidth: true
-                            implicitHeight: 52 * Appearance.effectiveScale
-                            buttonRadius: 26 * Appearance.effectiveScale
-                            colBackground: "transparent"
-                            onClicked: Wallpapers.browseFolder()
-                            
-                            RowLayout {
-                                anchors.fill: parent; anchors.leftMargin: 20 * Appearance.effectiveScale; spacing: 16 * Appearance.effectiveScale
-                                MaterialSymbol { text: "add"; iconSize: 22 * Appearance.effectiveScale; color: Appearance.colors.colPrimary }
-                                StyledText { text: "Add Folder"; color: Appearance.colors.colOnLayer0 }
-                            }
-                        }
-                        
-                        Item { Layout.fillHeight: true }
-
-                        // Mode Switcher
+                        // Mode Switcher (Sticky at bottom)
                         Row {
                             Layout.fillWidth: true
                             Layout.preferredHeight: 48 * Appearance.effectiveScale
-                            Layout.margins: 4 * Appearance.effectiveScale
                             spacing: 4 * Appearance.effectiveScale
                             SegmentedButton {
                                 width: (parent.width - (4 * Appearance.effectiveScale)) / 2; height: parent.height

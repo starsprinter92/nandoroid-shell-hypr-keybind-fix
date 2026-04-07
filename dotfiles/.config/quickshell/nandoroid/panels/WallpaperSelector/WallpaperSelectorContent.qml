@@ -728,11 +728,11 @@ Item {
                                             visible: sourcePath !== ""
                                         }
 
-                                        Image {
+                                        AnimatedImage {
                                             anchors.fill: parent; source: (delegateRoot.inWallhavenMode || delegateRoot.inNaiveMode || delegateRoot.inLiveMode) ? previewPath : ""
                                             fillMode: Image.PreserveAspectCrop
                                             visible: (delegateRoot.inWallhavenMode || delegateRoot.inNaiveMode || delegateRoot.inLiveMode) && source != ""
-                                            asynchronous: true; cache: true
+                                            asynchronous: true; cache: true; playing: true
                                         }
 
                                         Rectangle {
@@ -937,17 +937,23 @@ Item {
 
                         // Preview & Info
                         Rectangle {
+                            id: previewPlate
                             Layout.fillWidth: true
                             Layout.preferredHeight: 180 * Appearance.effectiveScale
-                            radius: 12 * Appearance.effectiveScale
+                            radius: 16 * Appearance.effectiveScale
                             color: Appearance.colors.colLayer2
-                            clip: true
+                            layer.enabled: true
+                            layer.effect: OpacityMask {
+                                maskSource: Rectangle { width: previewPlate.width; height: previewPlate.height; radius: 16 * Appearance.effectiveScale }
+                            }
 
-                            Image {
+                            AnimatedImage {
                                 anchors.fill: parent
                                 source: mainSelector.selectedWallpaper ? mainSelector.selectedWallpaper.preview : ""
                                 fillMode: Image.PreserveAspectCrop
                                 asynchronous: true
+                                playing: true
+                                cache: true
                             }
 
                             Rectangle {

@@ -50,6 +50,9 @@
     { "name": "noto-fonts-emoji", "command": "fc-list", "description": "Noto Emoji" },
     { "name": "noto-fonts-cjk", "command": "fc-list", "description": "CJK Font (Japanese, Chinese, Korean)" }
   ],
+  "livewallpaper": [
+    { "name": "linux-wallpaperengine-git", "command": "linux-wallpaperengine", "description": "Steam Wallpaper Engine support" }
+  ],
   "optional": [
     { "name": "kitty", "command": "kitty", "description": "Terminal emulator" },
     { "name": "fish", "command": "fish", "description": "Interactive shell" },

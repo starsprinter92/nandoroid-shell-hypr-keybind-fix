@@ -449,7 +449,7 @@ Item {
                             iconSize: 18 * Appearance.effectiveScale
                             color: Appearance.m3colors.m3onSurface
                         }
-                        StyledToolTip { text: "Wallpaper & Style" }
+                        StyledToolTip { text: "Change Wallpaper" }
                     }
 
                     RippleButton {
@@ -466,6 +466,7 @@ Item {
                             iconSize: 18 * Appearance.effectiveScale
                             color: root.editMode ? Appearance.m3colors.m3onPrimaryContainer : Appearance.m3colors.m3onSurface
                         }
+                        StyledToolTip { text: root.editMode ? "Done Editing" : "Edit Toggles" }
                     }
 
                     RippleButton {
@@ -485,6 +486,7 @@ Item {
                             iconSize: 18 * Appearance.effectiveScale
                             color: Appearance.m3colors.m3onSurface
                         }
+                        StyledToolTip { text: "System Settings" }
                     }
 
                     RippleButton {
@@ -504,6 +506,7 @@ Item {
                             iconSize: 18 * Appearance.effectiveScale
                             color: Appearance.m3colors.m3error
                         }
+                        StyledToolTip { text: "Power Menu" }
                     }
                 }
             }

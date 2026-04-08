@@ -83,6 +83,7 @@ The interactive installer guides you through dependency installation, config cop
 | **Clip. Hist.** | `cliphist` | Clipboard history management in Spotlight. |
 | **Recognition** | `songrec` | Shazam-like music recognition feature. |
 | **Visualizer** | `cava` | Audio visualization in the shell. |
+| **Wallpaper Eng.** | `linux-wallpaperengine-git` | Steam Wallpaper Engine support (Optional). |
 | **Effects** | `easyeffects` | Audio effects and equalization management. |
 | **Picker** | `hyprpicker` | System-wide color picker tool. |
 | **Lock** | `hyprlock` | The lock screen provider. |

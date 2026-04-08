@@ -46,6 +46,12 @@ Singleton {
 
     function updateActiveWindow() { getActiveWindow.running = true; }
     
+    // Targeted Update Timers
+    Timer { id: windowUpdateTimer; interval: 250; repeat: false; onTriggered: updateWindowList() }
+    Timer { id: workspaceUpdateTimer; interval: 150; repeat: false; onTriggered: updateWorkspaces() }
+    Timer { id: monitorUpdateTimer; interval: 500; repeat: false; onTriggered: updateMonitors() }
+    Timer { id: activeWinUpdateTimer; interval: 100; repeat: false; onTriggered: updateActiveWindow() }
+
     Process {
         id: layoutProc
     }
@@ -75,7 +81,7 @@ Singleton {
         
         GlobalStates.hyprlandLayout = nextLayout;
         root.layoutChanged();
-        refreshTimer.restart(); // Refresh data with a small delay
+        workspaceUpdateTimer.restart(); // Refresh data with a small delay
     }
 
     function fetchInitialLayout() {
@@ -113,17 +119,38 @@ Singleton {
     Connections {
         target: Hyprland
         function onRawEvent(event) {
-            if (["openlayer", "closelayer", "screencast", "mousemove"].includes(event.name)) return;
-            // Debounce updates to avoid hanging the shell and flooding processes
-            refreshTimer.restart();
+            const name = event.name;
+            
+            // Ignore high-frequency / irrelevant events
+            if (["openlayer", "closelayer", "screencast", "mousemove", "power"].includes(name)) return;
+            
+            if (name === "workspace" || name === "focusedmon") {
+                workspaceUpdateTimer.restart();
+                activeWinUpdateTimer.restart();
+            } else if (name === "activewindow" || name === "activewindowv2") {
+                activeWinUpdateTimer.restart();
+            } else if (["openwindow", "closewindow", "movewindow", "windowtitle", "fullscreen", "changefloatingmode"].includes(name)) {
+                windowUpdateTimer.restart();
+            } else if (name === "monitoradded" || name === "monitorremoved") {
+                monitorUpdateTimer.restart();
+            } else if (name === "activelayout") {
+                // Just refresh data without heavy window listing if possible
+                workspaceUpdateTimer.restart();
+            } else {
+                // Fallback for other events
+                refreshTimer.restart();
+            }
         }
     }
 
     Timer {
         id: refreshTimer
-        interval: 250
+        interval: 400
         repeat: false
-        onTriggered: updateAll()
+        onTriggered: {
+            updateWorkspaces();
+            updateActiveWindow();
+        }
     }
 
     Process {

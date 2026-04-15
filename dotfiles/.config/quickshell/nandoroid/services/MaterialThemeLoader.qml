@@ -13,7 +13,16 @@ import Quickshell.Io
  */
 Singleton {
     id: root
-    property string filePath: Directories.generatedMaterialThemePath
+    
+    readonly property string generatedPath: Directories.generatedMaterialThemePath
+    readonly property string themesDir: "file://" + Directories.assetsPath + "/themes/"
+    
+    property string filePath: {
+        if (!Config.ready) return generatedPath;
+        const bg = Config.options.appearance.background;
+        if (bg.matugen || bg.matugenThemeFile === "") return generatedPath;
+        return themesDir + bg.matugenThemeFile;
+    }
 
     function reapplyTheme() {
         themeFileView.reload()

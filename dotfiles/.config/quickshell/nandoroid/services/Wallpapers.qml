@@ -95,7 +95,11 @@ Singleton {
         id: matugenColorProc
         command: ["bash", "-c", `matugen -c ~/.config/matugen/config.toml -t "$1" -m "$2" color hex "$3" && sh -c "~/.config/quickshell/nandoroid/scripts/colors/apply_system_theme.sh"`, "matugen", scheme, (Config.options.appearance.background.darkmode ? "dark" : "light"), hexColor]
         property string hexColor
-        property string scheme: Config.options.appearance.background.matugenScheme || "scheme-tonal-spot"
+        property string scheme: {
+            // When in Basic mode, always use tonal-spot for the system generation
+            if (Config.ready && !Config.options.appearance.background.matugen) return "scheme-tonal-spot";
+            return Config.options.appearance.background.matugenScheme || "scheme-tonal-spot";
+        }
 
         stderr: StdioCollector {
             onStreamFinished: {

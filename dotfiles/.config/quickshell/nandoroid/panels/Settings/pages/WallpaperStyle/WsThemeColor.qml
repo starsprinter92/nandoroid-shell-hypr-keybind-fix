@@ -75,11 +75,17 @@ ColumnLayout {
                 Layout.fillWidth: true
                 Layout.preferredHeight: 52 * Appearance.effectiveScale
                 spacing: 4 * Appearance.effectiveScale
-                property string currentTab: {
-                    if (!Config.ready || !Config.options.appearance.background) return "wallpaper";
-                    const bg = Config.options.appearance.background;
-                    if (bg.matugen || (bg.matugenCustomColor !== "" && bg.matugenThemeFile === "")) return "wallpaper";
-                    return "basic";
+                property string currentTab: "wallpaper"
+
+                Component.onCompleted: {
+                    if (Config.ready && Config.options.appearance.background) {
+                        const bg = Config.options.appearance.background;
+                        if (bg.matugen || (bg.matugenCustomColor !== "" && bg.matugenThemeFile === "")) {
+                            currentTab = "wallpaper";
+                        } else {
+                            currentTab = "basic";
+                        }
+                    }
                 }
                 
                 SegmentedButton {
@@ -87,11 +93,7 @@ ColumnLayout {
                     height: parent.height
                     isHighlighted: parent.currentTab === "wallpaper"
                     buttonText: "Wallpaper color"
-                    onClicked: {
-                        Config.options.appearance.background.matugen = true
-                        Config.options.appearance.background.matugenThemeFile = ""
-                        Wallpapers.initializeMatugen()
-                    }
+                    onClicked: colorSwitcherRow.currentTab = "wallpaper"
                 }
 
                 SegmentedButton {
@@ -99,12 +101,7 @@ ColumnLayout {
                     height: parent.height
                     isHighlighted: parent.currentTab === "basic"
                     buttonText: "Basic colors"
-                    onClicked: {
-                        Config.options.appearance.background.matugen = false
-                        if (Config.options.appearance.background.matugenThemeFile === "") {
-                            Wallpapers.applyTheme("mocha.json")
-                        }
-                    }
+                    onClicked: colorSwitcherRow.currentTab = "basic"
                 }
             }
 
@@ -132,7 +129,12 @@ ColumnLayout {
                                 const def = Appearance.m3colors.m3surfaceContainerHigh;
                                 return [def, def, def];
                             }
-                            isSelected: Config.ready && (Config.options.appearance && Config.options.appearance.background) && Config.options.appearance.background.matugen && Config.options.appearance.background.matugenScheme === modelData.id && Config.options.appearance.background.matugenSource === "desktop"
+                            isSelected: {
+                                if (!Config.ready || !Config.options.appearance.background.matugen) return false;
+                                if (Config.options.appearance.background.matugenScheme !== modelData.id) return false;
+                                if (!Config.options.lock.useSeparateWallpaper) return true;
+                                return Config.options.appearance.background.matugenSource === "desktop";
+                            }
                             onClicked: {
                                 Config.options.appearance.background.matugen = true
                                 Config.options.appearance.background.matugenCustomColor = ""
@@ -148,7 +150,13 @@ ColumnLayout {
                         label: (Config.ready && Config.options.lock && Config.options.lock.useSeparateWallpaper) ? "Desktop\nAccent Picker" : "Accent Picker"
                         iconName: "colorize"
                         cardColors: [Appearance.m3colors.m3primary, Appearance.m3colors.m3secondary, Appearance.m3colors.m3tertiary]
-                        isSelected: Config.ready && !Config.options.appearance.background.matugen && Config.options.appearance.background.matugenCustomColor !== "" && Config.options.appearance.background.matugenThemeFile === "" && Config.options.appearance.background.matugenSource === "desktop"
+                        isSelected: {
+                            if (!Config.ready || Config.options.appearance.background.matugen) return false;
+                            const bg = Config.options.appearance.background;
+                            if (bg.matugenCustomColor === "" || bg.matugenThemeFile !== "") return false;
+                            if (!Config.options.lock.useSeparateWallpaper) return true;
+                            return bg.matugenSource === "desktop";
+                        }
                         onClicked: {
                             GlobalStates.accentPickerTarget = "desktop"
                             GlobalStates.accentPickerOpen = true
@@ -202,6 +210,7 @@ ColumnLayout {
                     Layout.preferredHeight: 48 * Appearance.effectiveScale
                     buttonRadius: 16 * Appearance.effectiveScale
                     colBackground: Appearance.m3colors.m3surfaceContainerHigh
+                    visible: Config.ready && Config.options.lock && Config.options.lock.useSeparateWallpaper
                     onClicked: colorSettingsCol.showAllMatugen = !colorSettingsCol.showAllMatugen
                     
                     RowLayout {

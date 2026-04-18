@@ -14,11 +14,6 @@ Singleton {
     property bool active: false
     readonly property string persistencePath: "~/.config/hypr/nandoroid/user_persistence.conf"
 
-    // --- Wallpaper State for Gaming Mode ---
-    property string _previousLiveWallpaperPath: ""
-    property string _previousStaticWallpaperPath: ""
-    property string _previousLayout: ""
-
     function toggle() {
         root.active = !root.active
         // Synchronize with Do Not Disturb
@@ -27,9 +22,8 @@ Singleton {
         if (root.active) {
             // --- 1. HANDLE WALLPAPER (OPTIMIZATION) ---
             if (WallpaperEngineService.isRunning || Config.options.appearance.background.liveWallpaperPath !== "") {
-                // Store the current state
-                root._previousLiveWallpaperPath = Config.options.appearance.background.liveWallpaperPath;
-                root._previousStaticWallpaperPath = Config.options.appearance.background.wallpaperPath;
+                // Store the current live wallpaper path for persistence
+                Config.options.gameModeState.previousLiveWallpaperPath = Config.options.appearance.background.liveWallpaperPath;
                 
                 // 1. Stop the process
                 WallpaperEngineService.stopInternal();
@@ -44,7 +38,7 @@ Singleton {
             // --- 2. HANDLE HYPRLAND (PERFORMANCE) ---
             // Store current layout to restore it later
             if (typeof HyprlandData !== "undefined" && HyprlandData.activeWorkspace) {
-                root._previousLayout = HyprlandData.activeWorkspace.tiledLayout || GlobalStates.hyprlandLayout || "dwindle";
+                Config.options.gameModeState.previousLayout = HyprlandData.activeWorkspace.tiledLayout || GlobalStates.hyprlandLayout || "dwindle";
             }
 
             const batchCmd = [
@@ -69,21 +63,12 @@ Singleton {
 
         } else {
             // --- 1. REVERT WALLPAPER ---
-            if (root._previousLiveWallpaperPath !== "") {
+            if (Config.options.gameModeState.previousLiveWallpaperPath !== "") {
                 // Restore live wallpaper path to Config
-                Config.options.appearance.background.liveWallpaperPath = root._previousLiveWallpaperPath;
-                
-                // Restore static wallpaper path (reverting from temporary screenshot)
-                if (root._previousStaticWallpaperPath !== "") {
-                    Wallpapers.select(root._previousStaticWallpaperPath);
-                }
+                Config.options.appearance.background.liveWallpaperPath = Config.options.gameModeState.previousLiveWallpaperPath;
                 
                 // Restart live wallpaper
-                WallpaperEngineService.applyInternal(root._previousLiveWallpaperPath);
-                
-                // Reset state
-                root._previousLiveWallpaperPath = "";
-                root._previousStaticWallpaperPath = "";
+                WallpaperEngineService.applyInternal(Config.options.gameModeState.previousLiveWallpaperPath);
             }
 
             // --- 2. REVERT HYPRLAND ---
@@ -97,21 +82,26 @@ Singleton {
             timer.triggered.connect(() => {
                 if (typeof HyprlandData !== 'undefined') {
                     // Restore layout explicitly if we saved it
-                    if (root._previousLayout !== "") {
-                        Quickshell.execDetached(["hyprctl", "keyword", "general:layout", root._previousLayout]);
+                    if (Config.options.gameModeState.previousLayout !== "") {
+                        Quickshell.execDetached(["hyprctl", "keyword", "general:layout", Config.options.gameModeState.previousLayout]);
                     }
 
                     const reapplyCmd = `cat ${root.persistencePath} 2>/dev/null | sed 's/ = / /g' | xargs -I {} hyprctl keyword {} || true`;
                     Quickshell.execDetached(["bash", "-c", reapplyCmd]);
                     HyprlandData.fetchInitialLayout();
                 }
+                
+                // Clear state after restoration
+                Config.options.gameModeState.previousLiveWallpaperPath = "";
+                Config.options.gameModeState.previousLayout = "";
+                
                 timer.destroy();
             });
             timer.start();
         }
     }
 
-    // Helper component to check screenshot file existence without TypeError
+    // Helper component to check screenshot file existence
     Process {
         id: screenshotCheckProc
         command: ["test", "-s", WallpaperEngineService.screenshotPath]
@@ -119,6 +109,34 @@ Singleton {
             if (code === 0) {
                 // File exists and is not empty, use it!
                 Wallpapers.select(WallpaperEngineService.screenshotPath);
+            }
+        }
+    }
+
+    // Specialized check for startup to handle missing /tmp files after restart
+    Process {
+        id: startupWallpaperCheck
+        command: ["test", "-s", WallpaperEngineService.screenshotPath]
+        onExited: (code) => {
+            if (code === 0) {
+                // Screenshot exists (shell restart), use it
+                Wallpapers.select(WallpaperEngineService.screenshotPath);
+            } else {
+                // PC restarted, screenshot is gone.
+                // We pick a random favorite if possible.
+                recoveryTimer.start();
+            }
+        }
+    }
+
+    Timer {
+        id: recoveryTimer
+        interval: 1000 // Delay to ensure Wallpaper service has loaded favorites
+        repeat: false
+        onTriggered: {
+            if (!Wallpapers.selectRandomFavorite()) {
+                const fallback = Config.options.appearance.background.autoCycleDirectory || (Directories.home + "/Pictures/Wallpapers");
+                Wallpapers.selectRandomFromDirectory(fallback);
             }
         }
     }
@@ -133,6 +151,19 @@ Singleton {
         command: ["bash", "-c", `test "$(hyprctl getoption animations:enabled -j | jq ".int")" -eq 0`]
         onExited: (code) => {
             root.active = (code === 0)
+            if (root.active && Config.ready) {
+                startupWallpaperCheck.running = true;
+            }
+        }
+    }
+
+    // Ensure we check startup state when config is ready if it wasn't before
+    Connections {
+        target: Config
+        function onReadyChanged() {
+            if (Config.ready && root.active) {
+                startupWallpaperCheck.running = true;
+            }
         }
     }
 }

@@ -464,6 +464,12 @@ Singleton {
                 property string scaling: "fill" // stretch, fit, fill, cover
                 property bool noPbo: false
             }
+
+            // --- Game Mode State ---
+            property JsonObject gameModeState: JsonObject {
+                property string previousLiveWallpaperPath: ""
+                property string previousLayout: ""
+            }
         }
     }
 }

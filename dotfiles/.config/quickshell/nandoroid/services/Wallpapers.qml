@@ -47,6 +47,37 @@ Singleton {
         saveFavorites();
     }
 
+    function selectRandomFavorite() {
+        // Filter favorites to include only static images and exclude Wallpaper Engine paths
+        const staticFavs = favorites.filter(path => {
+            const p = path.toLowerCase();
+            const isImage = p.endsWith(".jpg") || p.endsWith(".jpeg") || p.endsWith(".png") || p.endsWith(".webp") || p.endsWith(".avif");
+            const isWE = p.includes("431960"); // Steam Workshop ID for Wallpaper Engine
+            return isImage && !isWE;
+        });
+
+        if (staticFavs.length > 0) {
+            const index = Math.floor(Math.random() * staticFavs.length);
+            root.select(staticFavs[index]);
+            return true;
+        }
+        return false;
+    }
+
+    function selectRandomFromDirectory(dirPath) {
+        let cleanPath = dirPath.toString().startsWith("file://") ? dirPath.toString().substring(7) : dirPath.toString();
+        // Use a shell command to pick a random image file from the directory
+        const cmd = `find "${cleanPath}" -maxdepth 1 -type f \\( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" -o -iname "*.webp" -o -iname "*.avif" \\) | shuf -n 1`;
+        
+        const proc = Quickshell.exec(["bash", "-c", cmd]);
+        proc.finished.connect(() => {
+            const result = proc.stdout.readAll().trim();
+            if (result !== "") {
+                root.select(result);
+            }
+        });
+    }
+
     function saveFavorites() {
         const data = JSON.stringify(root.favorites);
         const path = Directories.favoritesPathRaw;

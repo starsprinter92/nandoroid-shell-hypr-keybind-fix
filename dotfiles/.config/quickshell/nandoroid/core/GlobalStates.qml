@@ -249,7 +249,7 @@ Singleton {
             
             if [ -z "$ADDR" ] || [ "$ADDR" = "null" ]; then
                 # Not open, so open it
-                qs -c nandoroid ipc call settings open_direct
+                quickshell -c nandoroid ipc call settings open_direct
                 exit 0
             fi
 
@@ -258,7 +258,7 @@ Singleton {
             
             if [ "$ADDR" = "$ACTIVE_ADDR" ]; then
                 # Already focused here, so close it
-                qs -c nandoroid ipc call settings close
+                quickshell -c nandoroid ipc call settings close
             else
                 # Pull it here! Get current workspace name
                 CUR_WS=$(hyprctl activeworkspace -j | jq -r .name)
@@ -281,7 +281,7 @@ Singleton {
             
             if [ -z "$ADDR" ] || [ "$ADDR" = "null" ]; then
                 # Not open, so open it
-                qs -c nandoroid ipc call systemmonitor open_direct
+                quickshell -c nandoroid ipc call systemmonitor open_direct
                 exit 0
             fi
 
@@ -290,7 +290,7 @@ Singleton {
             
             if [ "$ADDR" = "$ACTIVE_ADDR" ]; then
                 # Already focused here, so close it
-                qs -c nandoroid ipc call systemmonitor close
+                quickshell -c nandoroid ipc call systemmonitor close
             else
                 # Pull it here! Get current workspace name
                 CUR_WS=$(hyprctl activeworkspace -j | jq -r .name)

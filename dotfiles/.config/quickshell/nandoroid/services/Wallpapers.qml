@@ -238,9 +238,9 @@ Singleton {
             sleep 0.5
             HEX=$(hyprpicker --no-fancy)
             if [[ "$HEX" =~ ^#[0-9A-Fa-f]{6}$ ]]; then
-                qs -c nandoroid ipc call wallpaper_accent apply_accent "$HEX" "${finalTarget}"
+                quickshell -c nandoroid ipc call wallpaper_accent apply_accent "$HEX" "${finalTarget}"
             else
-                qs -c nandoroid ipc call wallpaper_accent close_accent
+                quickshell -c nandoroid ipc call wallpaper_accent close_accent
             fi
         `;
         Quickshell.execDetached(["bash", "-c", cmd]);

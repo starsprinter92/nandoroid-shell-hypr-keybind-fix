@@ -927,6 +927,6 @@ Item {
     
     Process {
         id: avatarPickerProc
-        command: ["bash", "-c", "cd /tmp && qs -c nandoroid ipc call spotlight browse_avatar"]
+        command: ["bash", "-c", "cd /tmp && quickshell -c nandoroid ipc call spotlight browse_avatar"]
     }
 }

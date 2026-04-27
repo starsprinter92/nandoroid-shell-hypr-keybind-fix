@@ -43,7 +43,7 @@ Scope {
             anchors.horizontalCenter: parent.horizontalCenter
             width: listview.width
             anchors.top: listview.top
-            height: listview.contentHeight
+            height: listview.contentHeight + (200 * Appearance.effectiveScale)
         }
 
         color: "transparent"

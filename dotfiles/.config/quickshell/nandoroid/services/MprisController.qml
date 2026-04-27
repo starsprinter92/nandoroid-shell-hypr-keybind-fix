@@ -271,14 +271,15 @@ Singleton {
         if (entry !== "" || identity !== "") {
             let target = entry.replace(".desktop", "") || identity;
             
-            // Try focusing by class (most reliable)
-            Quickshell.execDetached(["hyprctl", "dispatch", "focuswindow", `class:${target}`]);
+            // Use case-insensitive regex to find the window
+            // class:^(?i)(target)$ matches the class exactly but ignores case
+            Quickshell.execDetached(["hyprctl", "dispatch", "focuswindow", `class:^(?i)(${target})$`]);
             
-            // Also try focusing by title/name as a fallback (some apps don't match entry to class)
-            Quickshell.execDetached(["hyprctl", "dispatch", "focuswindow", `title:${target}`]);
+            // Fallback to substring match if exact match fails
+            Quickshell.execDetached(["hyprctl", "dispatch", "focuswindow", `title:(?i)${target}`]);
             
-            // Close the notification center to show the window
             GlobalStates.notificationCenterOpen = false;
+            GlobalStates.dashboardOpen = false;
         }
     }
 

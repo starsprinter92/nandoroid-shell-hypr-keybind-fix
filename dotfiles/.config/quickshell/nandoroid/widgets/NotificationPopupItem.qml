@@ -80,7 +80,10 @@ Item {
 
         DragManager {
             id: dragManager
-            anchors.fill: parent
+            anchors.left: parent.left
+            anchors.right: parent.right
+            anchors.top: parent.top
+            height: bodyText.y + bodyText.height + root.padding // Only cover text area
             interactive: true
             automaticallyReset: false
             onClicked: {
@@ -145,8 +148,36 @@ Item {
                 visible: root.expanded && notificationObject
                 spacing: 8 * Appearance.effectiveScale
                 
-                readonly property int totalButtons: (notificationObject ? notificationObject.actions.length : 0) + 2
+                readonly property int totalButtons: (notificationObject ? notificationObject.actions.length : 0) + 3
                 readonly property real buttonWidth: (width - (spacing * (totalButtons - 1))) / totalButtons
+
+                NotificationActionButton {
+                    width: actionsRow.buttonWidth
+                    onClicked: {
+                        if (notificationObject) Notifications.attemptInvokeAction(notificationObject.notificationId, "default");
+                    }
+                    contentItem: Item {
+                        Row {
+                            spacing: 4 * Appearance.effectiveScale
+                            anchors.centerIn: parent
+                            MaterialSymbol {
+                                iconSize: 16 * Appearance.effectiveScale
+                                anchors.verticalCenter: parent.verticalCenter
+                                color: (notificationObject && notificationObject.urgency == NotificationUrgency.Critical) ? 
+                                    Appearance.m3colors.m3onSurfaceVariant : Appearance.m3colors.m3onSurface
+                                text: "visibility"
+                            }
+                            StyledText {
+                                text: "View"
+                                font.pixelSize: 12 * Appearance.effectiveScale
+                                anchors.verticalCenter: parent.verticalCenter
+                                visible: parent.parent.parent.width > 60 * Appearance.effectiveScale
+                                color: (notificationObject && notificationObject.urgency == NotificationUrgency.Critical) ? 
+                                    Appearance.m3colors.m3onSurfaceVariant : Appearance.m3colors.m3onSurface
+                            }
+                        }
+                    }
+                }
 
                 NotificationActionButton {
                     width: actionsRow.buttonWidth

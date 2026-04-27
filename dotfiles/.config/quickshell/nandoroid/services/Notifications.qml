@@ -5,6 +5,7 @@ import "../core"
 import QtQuick
 import Quickshell
 import Quickshell.Io
+import Quickshell.Hyprland
 import Quickshell.Services.Notifications
 
 /**
@@ -256,27 +257,55 @@ Singleton {
         const serverIndex = notifServer.trackedNotifications.values.findIndex(
             n => n.id + root.idOffset === id
         );
+        
         if (serverIndex !== -1) {
             const notif = notifServer.trackedNotifications.values[serverIndex];
-            let invoked = false;
             
             if (actionIdentifier === "default") {
+                // --- Smart Focus Logic (Native Hyprland) ---
+                const appName = (notif.appName || "").toLowerCase();
+                const summary = (notif.summary || "").toLowerCase();
+                
+                if (appName !== "" || summary !== "") {
+                    let bestMatch = null;
+                    let highestScore = 0;
+
+                    // Search through all known toplevels (windows)
+                    for (let i = 0; i < Hyprland.toplevels.values.length; i++) {
+                        const tl = Hyprland.toplevels.values[i];
+                        let score = 0;
+                        const cClass = (tl.class || "").toLowerCase();
+                        const cTitle = (tl.title || "").toLowerCase();
+                        const cInitial = (tl.initialClass || "").toLowerCase();
+
+                        if (appName !== "") {
+                            if (cClass === appName || cInitial === appName) score += 100;
+                            else if (cClass.includes(appName) || appName.includes(cClass)) score += 50;
+                        }
+                        
+                        if (summary !== "" && cTitle.includes(summary)) score += 30;
+                        if (appName !== "" && cTitle.includes(appName)) score += 20;
+
+                        if (score > highestScore) {
+                            highestScore = score;
+                            bestMatch = tl;
+                        }
+                    }
+
+                    if (bestMatch && highestScore > 0) {
+                        Hyprland.dispatch(`focuswindow address:0x${bestMatch.address}`);
+                    }
+                }
+
                 if (typeof notif.invokeDefaultAction === "function") {
                     notif.invokeDefaultAction();
-                    invoked = true;
+                } else {
+                    const action = notif.actions.find(a => a.identifier === "default" || a.identifier === "");
+                    if (action) action.invoke();
                 }
-            }
-            
-            if (!invoked && typeof notif.invokeAction === "function") {
-                notif.invokeAction(actionIdentifier);
-                invoked = true;
-            }
-            
-            if (!invoked) {
+            } else {
                 const action = notif.actions.find(a => a.identifier === actionIdentifier);
-                if (action && typeof action.invoke === "function") {
-                    action.invoke();
-                }
+                if (action) action.invoke();
             }
         }
         root.discardNotification(id);

@@ -55,10 +55,9 @@ output_path = "~/.antigravity/extensions/hyprluna.hyprluna-theme-1.0.2/themes/hy
 input_path = "~/.config/matugen/templates/zed_theme.json"
 output_path = "~/.local/share/zed/extensions/installed/material-dark/themes/zed_material_theme.json"
 
-[templates.spicetify]
-input_path = "~/.config/matugen/templates/spicetify-color.ini"
-output_path = "~/.config/spicetify/Themes/caelestia/color.ini"
-post_hook = "spicetify-smart-apply"
+#[templates.spicetify]
+#input_path = "~/.config/matugen/templates/spicetify-color.ini"
+#output_path = "~/.config/spicetify/Themes/caelestia/color.ini"
 
 [templates.cava]
 input_path = '~/.config/matugen/templates/cava_color.ini'

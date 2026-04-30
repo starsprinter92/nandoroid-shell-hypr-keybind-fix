@@ -417,7 +417,7 @@ Item {
                                     implicitHeight: 52 * Appearance.effectiveScale
                                     buttonRadius: 16 * Appearance.effectiveScale
                                     toggled: mainSelector.liveMode
-                                    enabled: GlobalStates.wallpaperSelectorTarget === "desktop" && WallpaperEngineService.isInstalled
+                                    enabled: GlobalStates.wallpaperSelectorTarget === "desktop" && WallpaperEngineService.isInstalled && !GameMode.active
                                     opacity: enabled ? 1 : 0.4
                                     
                                     colBackground: toggled ? Appearance.colors.colPrimary : Appearance.colors.colLayer1
@@ -440,6 +440,7 @@ Item {
                                     
                                     StyledToolTip {
                                         text: {
+                                            if (GameMode.active) return "Live wallpapers cannot be changed while Game Mode is active";
                                             if (!WallpaperEngineService.isInstalled) return "linux-wallpaperengine not found";
                                             if (GlobalStates.wallpaperSelectorTarget !== "desktop") return "Live wallpapers only supported on desktop";
                                             return "Browse Wallpaper Engine collection";
@@ -1164,6 +1165,8 @@ Item {
                                 Layout.preferredWidth: 1
                                 implicitHeight: 44 * Appearance.effectiveScale
                                 buttonText: "Apply"
+                                enabled: !GameMode.active
+                                opacity: enabled ? 1 : 0.5
                                 colBackground: Appearance.colors.colPrimary
                                 colText: Appearance.colors.colOnPrimary
                                 onClicked: {

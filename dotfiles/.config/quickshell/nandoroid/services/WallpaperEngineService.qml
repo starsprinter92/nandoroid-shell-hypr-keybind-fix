@@ -327,11 +327,11 @@ print(json.dumps(props))
 
     Timer {
         id: applyFinishFailsafe
-        interval: 8000
+        interval: 65000
         repeat: false
         onTriggered: {
             if (root.isApplying) {
-                console.log("[WallpaperEngine] Apply failsafe triggered");
+                console.log("[WallpaperEngine] Apply failsafe triggered (65s)");
                 root.isApplying = false;
                 CavaService.restart();
                 root.updatePauseState();
@@ -385,6 +385,8 @@ print(json.dumps(wallpapers))
         }
     }
 
+    property bool _isIntentionalStop: false
+
     onIsRunningChanged: {
         if (isRunning) {
             lowerTimer.count = 0;
@@ -396,23 +398,25 @@ print(json.dumps(wallpapers))
         id: activeProcess
         onExited: (exitCode) => { 
             root.isPaused = false; 
+            
+            // If we intentionally stopped this process, ignore its exit code
+            if (root._isIntentionalStop) {
+                root._isIntentionalStop = false;
+                return;
+            }
+
             // Detect if process crashed or exited prematurely while we were trying to apply it
-            if (root.isApplying && exitCode !== 0) {
-                console.warn("[WallpaperEngine] Process failed to start with code:", exitCode);
-                root.handleApplyError("Process exited with error code " + exitCode);
+            if (root.isApplying) {
+                if (exitCode !== 0) {
+                    console.warn("[WallpaperEngine] Process failed to start with code:", exitCode);
+                    root.handleApplyError("Process exited with error code " + exitCode);
+                } else if (!activeProcess.running) {
+                    root.handleApplyError("Process exited unexpectedly");
+                }
             }
         }
         stderr: StdioCollector {
-            onStreamFinished: {
-                if (this.text.trim() !== "") {
-                    console.warn("[WallpaperEngine] Log:", this.text.trim());
-                    // Some wallpapers fail because of missing files or shaders
-                    if (root.isApplying && (this.text.includes("Failed to load") || this.text.includes("error"))) {
-                        // We don't trigger error immediately here because some errors are non-fatal, 
-                        // the matugenWatchTimer will handle the actual functional failure.
-                    }
-                }
-            }
+            id: activeStderr
         }
     }
 
@@ -433,12 +437,8 @@ print(json.dumps(wallpapers))
         // Reset config to static mode
         if (Config.ready) {
             Config.options.appearance.background.liveWallpaperPath = "";
-            // Fallback to random favorite static wallpaper
             const success = Wallpapers.selectRandomFavorite();
-            if (!success) {
-                // If no favorites, just re-init colors for current wallpaper
-                Wallpapers.initializeMatugen();
-            }
+            if (!success) Wallpapers.initializeMatugen();
         }
     }
 
@@ -449,14 +449,12 @@ print(json.dumps(wallpapers))
             if (code === 0) {
                 console.log("[WallpaperEngine] Screenshot detected, processing Matugen...");
                 matugenWatchTimer.stop();
-                root.screenshotVersion = root.screenshotVersion + 1; // Explicit increment
+                root.screenshotVersion = root.screenshotVersion + 1;
                 Wallpapers.generateColors(root.screenshotPath);
                 
-                // CRITICAL: Now we can safely allow the process to be auto-paused
                 if (root.isApplying) {
                     root.isApplying = false;
                     CavaService.restart();
-                    // updatePauseState will be called by next window list change or manually here
                     root.updatePauseState();
                 }
             }
@@ -468,11 +466,21 @@ print(json.dumps(wallpapers))
         interval: 1000; repeat: true; property int attempts: 0
         onTriggered: {
             attempts++;
-            if (attempts > 15) { 
-                console.warn("[WallpaperEngine] Matugen watch timeout - no screenshot produced");
+            
+            // Log-based error detection
+            const currentLogs = activeStderr.text.toLowerCase();
+            if (currentLogs.includes("failed to load") || 
+                currentLogs.includes("error loading wallpaper") || 
+                currentLogs.includes("could not open project.json")) {
+                matugenWatchTimer.stop();
+                root.handleApplyError("Wallpaper Engine reported a fatal error during loading.");
+                return;
+            }
+
+            if (attempts > 60) { 
                 matugenWatchTimer.stop(); 
                 if (root.isApplying) { 
-                    root.handleApplyError("Timeout waiting for wallpaper to render (15s)");
+                    root.handleApplyError("Timeout waiting for wallpaper to render (60s)");
                 }
                 return; 
             }
@@ -482,11 +490,22 @@ print(json.dumps(wallpapers))
 
     function stop() {
         stopInternal();
-        if (Config.ready) Config.options.appearance.background.liveWallpaperPath = "";
+        if (Config.ready) {
+            Config.options.appearance.background.liveWallpaperPath = "";
+            Config.options.gameModeState.previousLiveWallpaperPath = "";
+        }
     }
 
     function stopInternal() {
-        activeProcess.running = false;
+        root.isApplying = false;
+        matugenWatchTimer.stop();
+        applyFinishFailsafe.stop();
+
+        if (activeProcess.running) {
+            root._isIntentionalStop = true;
+            activeProcess.running = false;
+        }
+        
         Quickshell.execDetached(["sh", "-c", "pkill -CONT -f linux-wallpaperengine; pkill -KILL -f linux-wallpaperengine"]);
         root.isPaused = false;
     }

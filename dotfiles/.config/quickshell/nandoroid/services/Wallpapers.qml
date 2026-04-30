@@ -590,7 +590,7 @@ Singleton {
     Timer {
         id: autoCycleTimer
         interval: Math.max(1, root._autoCycleInterval) * 60 * 1000
-        running: root._autoCycleEnabled
+        running: root._autoCycleEnabled && !GameMode.active
         repeat: true
         onTriggered: {
             root.nextWallpaper();

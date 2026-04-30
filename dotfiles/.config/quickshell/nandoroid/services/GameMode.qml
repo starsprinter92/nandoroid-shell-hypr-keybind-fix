@@ -21,9 +21,10 @@ Singleton {
         
         if (root.active) {
             // --- 1. HANDLE WALLPAPER (OPTIMIZATION) ---
-            if (WallpaperEngineService.isRunning || Config.options.appearance.background.liveWallpaperPath !== "") {
+            const livePath = Config.options.appearance.background.liveWallpaperPath;
+            if (WallpaperEngineService.isRunning || (livePath && livePath !== "")) {
                 // Store the current live wallpaper path for persistence
-                Config.options.gameModeState.previousLiveWallpaperPath = Config.options.appearance.background.liveWallpaperPath;
+                Config.options.gameModeState.previousLiveWallpaperPath = livePath;
                 
                 // 1. Stop the process
                 WallpaperEngineService.stopInternal();
@@ -31,8 +32,10 @@ Singleton {
                 // 2. Clear path in Config so Background.qml displays static wallpaper
                 Config.options.appearance.background.liveWallpaperPath = "";
                 
-                // 3. Check and apply high quality screenshot
-                screenshotCheckProc.running = true;
+                // 3. Check and apply high quality screenshot ONLY IF we were in live mode
+                if (livePath && livePath !== "") {
+                    screenshotCheckProc.running = true;
+                }
             }
 
             // --- 2. HANDLE HYPRLAND (PERFORMANCE) ---
@@ -106,8 +109,9 @@ Singleton {
         id: screenshotCheckProc
         command: ["test", "-s", WallpaperEngineService.screenshotPath]
         onExited: (code) => {
-            if (code === 0) {
-                // File exists and is not empty, use it!
+            const livePath = Config.options.gameModeState.previousLiveWallpaperPath;
+            if (code === 0 && livePath && livePath !== "") {
+                // File exists and we were using a live wallpaper, use it!
                 Wallpapers.select(WallpaperEngineService.screenshotPath);
             }
         }
@@ -118,13 +122,16 @@ Singleton {
         id: startupWallpaperCheck
         command: ["test", "-s", WallpaperEngineService.screenshotPath]
         onExited: (code) => {
-            if (code === 0) {
-                // Screenshot exists (shell restart), use it
+            const livePath = Config.options.gameModeState.previousLiveWallpaperPath;
+            if (code === 0 && livePath && livePath !== "") {
+                // Screenshot exists and we should be in WE mode (via persistence)
                 Wallpapers.select(WallpaperEngineService.screenshotPath);
             } else {
-                // PC restarted, screenshot is gone.
-                // We pick a random favorite if possible.
-                recoveryTimer.start();
+                // Either no screenshot or we weren't in WE mode.
+                // If livePath is empty, it means we chose a static wallpaper before.
+                if (livePath && livePath !== "") {
+                    recoveryTimer.start();
+                }
             }
         }
     }

@@ -281,7 +281,31 @@ Singleton {
                 // --- Smart Focus Logic (Enhanced with Overview-style Fuzzy Matching) ---
                 const appName = (notif.appName || "").toLowerCase();
                 const summary = (notif.summary || "").toLowerCase();
+                const body = (notif.body || "").toLowerCase();
                 
+                // ── NANDOROID INTERNAL ROUTING ──
+                if (appName === "nandoroid") {
+                    if (summary.includes("update") || body.includes("update")) {
+                        GlobalStates.settingsPageIndex = 6; // About page
+                        GlobalStates.settingsAboutView = "update"; // Directly to Update sub-page
+                        GlobalStates.settingsOpen = true;
+                    } else if (summary.includes("schedule") || summary.includes("event") || body.includes("schedule") || body.includes("event")) {
+                        GlobalStates.dashboardOpen = true;
+                    } else if (summary.includes("wallpaper") || summary.includes("theming") || body.includes("wallpaper") || body.includes("theming")) {
+                        GlobalStates.settingsPageIndex = 4; // Wallpaper & Style
+                        GlobalStates.settingsOpen = true;
+                    } else if (summary.includes("audio") || summary.includes("sound") || body.includes("audio") || body.includes("sound")) {
+                        GlobalStates.settingsPageIndex = 2; // Audio
+                        GlobalStates.settingsOpen = true;
+                    } else if (summary.includes("settings") || body.includes("settings") || summary.includes("system") || body.includes("system")) {
+                        GlobalStates.settingsOpen = true;
+                    }
+                    
+                    GlobalStates.notificationCenterOpen = false;
+                    root.discardNotification(id);
+                    return;
+                }
+
                 if (appName !== "" || summary !== "") {
                     let bestMatch = null;
                     let highestScore = -1;

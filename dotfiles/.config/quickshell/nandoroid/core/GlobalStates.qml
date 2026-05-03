@@ -87,6 +87,7 @@ Singleton {
 
     // Settings Navigation
     property int settingsPageIndex: 0
+    property string settingsAboutView: "main" // "main", "update", "dependency", or "credits"
     property bool settingsBluetoothPairMode: false
 
     // System Monitor Navigation

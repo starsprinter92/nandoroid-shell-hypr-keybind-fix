@@ -144,11 +144,13 @@ if [[ "$DEP_CHOICE" =~ ^[Yy] ]]; then
         substep "paru already available."
     fi
 
-    # 3a. Core
-    info "Core shell dependencies..."
-    substep "Required for the shell to function."
+    # 3a. Core, Services, and Utilities
+    info "Mandatory shell dependencies..."
+    substep "Required for the shell and system to function."
     ./scripts/install_deps.sh core "$CONFIRM_FLAG" < /dev/tty
-    success "Core dependencies installed."
+    ./scripts/install_deps.sh services "$CONFIRM_FLAG" < /dev/tty
+    ./scripts/install_deps.sh utilities "$CONFIRM_FLAG" < /dev/tty
+    success "Mandatory dependencies installed."
 
     # 3b. KDE Material You Venv (Optional but recommended)
     info "KDE Material You integration..."

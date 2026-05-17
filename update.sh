@@ -80,14 +80,14 @@ mkdir -p "$HOME/.config/quickshell/nandoroid/data"
 cp "$PROJECT_ROOT/data/dependencies.json" "$HOME/.config/quickshell/nandoroid/data/dependencies.json"
 
 # Migration / Config Injection
-HYPR_CONF="$HOME/.config/hypr/hyprland.conf"
+HYPR_CONF="$HOME/.config/hypr/hyprland.lua"
 if [ -f "$HYPR_CONF" ]; then
-    if ! grep -q "user_persistence.conf" "$HYPR_CONF"; then
-        echo "Injecting user_persistence.conf into hyprland.conf..."
-        echo "source = ~/.config/hypr/nandoroid/user_persistence.conf" >> "$HYPR_CONF"
+    if ! grep -q 'require("nandoroid/user_persistence")' "$HYPR_CONF"; then
+        echo "Injecting user_persistence.lua into hyprland.lua..."
+        echo 'require("nandoroid/user_persistence")' >> "$HYPR_CONF"
     fi
 fi
 mkdir -p "$HOME/.config/hypr/nandoroid"
-touch "$HOME/.config/hypr/nandoroid/user_persistence.conf"
+touch "$HOME/.config/hypr/nandoroid/user_persistence.lua"
 
 echo "Update successful!"

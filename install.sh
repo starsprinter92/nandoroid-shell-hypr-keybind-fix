@@ -144,12 +144,13 @@ if [[ "$DEP_CHOICE" =~ ^[Yy] ]]; then
         substep "paru already available."
     fi
 
-    # 3a. Core, Services, and Utilities
+    # 3a. Core, Services, Utilities, and Theming
     info "Mandatory shell dependencies..."
     substep "Required for the shell and system to function."
     ./scripts/install_deps.sh core "$CONFIRM_FLAG" < /dev/tty
     ./scripts/install_deps.sh services "$CONFIRM_FLAG" < /dev/tty
     ./scripts/install_deps.sh utilities "$CONFIRM_FLAG" < /dev/tty
+    ./scripts/install_deps.sh theming "$CONFIRM_FLAG" < /dev/tty
     success "Mandatory dependencies installed."
 
     # 3b. KDE Material You Venv (Optional but recommended)
@@ -206,12 +207,10 @@ if [[ "$DEP_CHOICE" =~ ^[Yy] ]]; then
     choice "1" "kitty     ${C_DIM}- terminal with theme injection${C_RST}"
     choice "2" "fish      ${C_DIM}- interactive shell${C_RST}"
     choice "3" "starship  ${C_DIM}- cross-shell prompt${C_RST}"
-    choice "4" "theming   ${C_DIM}- GTK/Qt theme sync utilities${C_RST}"
     ask "Install optional tools? (y/N)"
     read -r TERM_CHOICE < /dev/tty
     if [[ "$TERM_CHOICE" =~ ^[Yy] ]]; then
         ./scripts/install_deps.sh optional "$CONFIRM_FLAG" < /dev/tty
-        ./scripts/install_deps.sh theming "$CONFIRM_FLAG" < /dev/tty
         success "Optional tools installed."
     else
         success "Skipped."

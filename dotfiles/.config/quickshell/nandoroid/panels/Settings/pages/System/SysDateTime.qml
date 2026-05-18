@@ -1,7 +1,7 @@
 import "../../../../core"
 import "../../../../services"
 import "../../../../widgets"
-import "."
+import "../../../../core/functions" as Functions
 import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls
@@ -13,13 +13,15 @@ ColumnLayout {
     Layout.fillWidth: true
     spacing: 0
 
-    SearchHandler { searchString: "Date & Time" }
+    SearchHandler {
+        searchString: "Date & Time"
+        aliases: ["Time Format", "Date Format", "Clock", "12H", "24H", "Jam", "Tanggal", "Waktu"]
+    }
 
     // ── Date & Time Section ──
 
             ColumnLayout {
                 Layout.fillWidth: true
-                Layout.topMargin: 12 * Appearance.effectiveScale
                 spacing: 16 * Appearance.effectiveScale
                 
                 RowLayout {

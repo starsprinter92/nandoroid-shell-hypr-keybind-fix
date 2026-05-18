@@ -432,9 +432,6 @@ Flickable {
         // ── Typography Section ──
         WsTypography { Layout.fillWidth: true }
 
-        // ── Date & Time Section ──
-        WsDateTime { Layout.fillWidth: true }
-
         Item { Layout.fillHeight: true; Layout.preferredHeight: 32 * Appearance.effectiveScale }
     }
 }

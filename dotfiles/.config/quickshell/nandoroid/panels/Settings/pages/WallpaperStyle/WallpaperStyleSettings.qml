@@ -73,7 +73,9 @@ Flickable {
 
     property var matugenPreviews: ({})
     property var pendingPreviews: ({})
-    property string currentSourceHex: ""
+    property string desktopSourceHex: ""
+    property string lockscreenSourceHex: ""
+    readonly property string currentSourceHex: previewMatugen.currentSource === "lockscreen" ? lockscreenSourceHex : desktopSourceHex
 
     Timer {
         id: batchUpdateTimer
@@ -137,7 +139,13 @@ Flickable {
                         const sc = data.colors.source_color;
                         let extracted = sc.default || (sc.light ? sc.light : (sc.dark ? sc.dark : ""));
                         if (typeof extracted === 'object') extracted = extracted.color || "";
-                        if (typeof extracted === 'string' && extracted.startsWith("#")) root.currentSourceHex = extracted;
+                        if (typeof extracted === 'string' && extracted.startsWith("#")) {
+                            if (previewMatugen.currentSource === "lockscreen") {
+                                root.lockscreenSourceHex = extracted;
+                            } else {
+                                root.desktopSourceHex = extracted;
+                            }
+                        }
                     }
                     
                     const mode = Config.options.appearance.background.darkmode ? "dark" : "light";
@@ -225,7 +233,8 @@ Flickable {
         previewIndex = 0;
         previewSource = "desktop";
         root.pendingPreviews = {};
-        root.currentSourceHex = "";
+        root.desktopSourceHex = "";
+        root.lockscreenSourceHex = "";
         previewIterateTimer.restart();
     }
 

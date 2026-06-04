@@ -1,149 +1,143 @@
-# Installation Guide
+# Nandoroid Shell Installation Guide
 
-This guide walks you through installing Nandoroid Shell on a **clean Arch Linux** or **CachyOS** system with Hyprland.
+Welcome! This guide will walk you through getting Nandoroid Shell up and running on your system. It is specifically tailored for clean Arch Linux or CachyOS setups running Hyprland.
 
-## Important: What This Is (and Isn't)
+## Understanding the Scope
 
-Nandoroid Shell is a **desktop shell** that provides panels, notifications, OSD, quick settings, and a dynamic island for Hyprland. It is **not** a full dotfiles package.
+Before we dive in, let's clarify what Nandoroid Shell actually is. It is a desktop shell built for Hyprland that replaces your standard panels, notifications, and system controls. However, it is not a complete dotfiles package that overrides your entire system.
 
-**What Nandoroid provides:**
+**What you get:**
+* A universal dynamic island, status bar, and notification center.
+* A quick settings panel for Wi-Fi, Bluetooth, and brightness.
+* An app launcher, spotlight search, and a visual dashboard.
+* A beautifully themed lockscreen and on-screen displays (OSD).
+* Automatic Material 3 theme generation based on your wallpaper using Matugen.
 
-- Status bar, dynamic island, notification center
-- Quick settings panel (Wi-Fi, Bluetooth, brightness, etc.)
-- App launcher and spotlight search
-- Settings panel, system monitor, overview
-- Lockscreen with media visualization
-- OSD for volume, brightness, power modes
-- Material 3 theme generation (wallpaper-based colors via Matugen)
-
-**What it does NOT provide:**
-
-- File picker / screen sharing dialogs (you need `xdg-desktop-portal-hyprland` and `xdg-desktop-portal-gtk`, included in dependencies)
-- Window manager keybinds (you configure these in `hyprland.conf` yourself)
-- Terminal emulator / shell (kitty, fish, starship are optional aesthetic add-ons)
-- Full DE environment (file manager, app store, etc.)
+**What you need to configure yourself:**
+* File pickers and screen sharing dialogs. The dependencies install the required portals (`xdg-desktop-portal-hyprland` and `xdg-desktop-portal-gtk`), but they remain your system's responsibility.
+* Window management keybinds. You will configure these directly in your `hyprland.lua`.
+* Your choice of terminal emulator and shell. We provide optional aesthetics for kitty, fish, and starship, but they are not strictly required.
+* A full desktop environment suite like a file manager or app store.
 
 ## Prerequisites
 
-- **Arch Linux**, **CachyOS**, or any Arch-based distro
-- **Hyprland** installed and running as your compositor
-- **An AUR helper** (the installer will install `paru` if not found)
-- `git`, `curl`, and `base-devel` (for building AUR packages)
+Before running the installer, make sure your system meets these basic requirements:
+* You are running Arch Linux, CachyOS, or a similar Arch-based distribution.
+* Hyprland is installed and currently running as your compositor.
+* You have an AUR helper installed. If you do not have one, the installer will attempt to set up `paru` for you.
+* Standard build tools like `git`, `curl`, and `base-devel` are present on your system.
 
-## Quick Install
+## Quick Installation
 
-Run this single command to start the interactive installer:
+The easiest way to install Nandoroid Shell is by using the interactive installation script. Run the following command in your terminal:
 
 ```bash
 bash -c "$(curl -fsSL https://raw.githubusercontent.com/na-ive/nandoroid-shell/main/install.sh)"
 ```
 
-The script will prompt you through each step:
+The script will guide you through the process step by step. Here is what to expect during the installation:
 
-### Step 1: Choose Install Location
+### 1. Choosing the Install Location
+By default, the shell will be installed in `~/.local/src/nandoroid`. You can choose a different location if you prefer.
 
-Default: `~/.local/src/nandoroid`
+### 2. Installing Dependencies
+The installer categorizes dependencies to give you control over what gets installed:
+* **Core Dependencies (Required):** Includes Hyprland, Quickshell, Pipewire, NetworkManager, Matugen, and essential CLI tools like Python3. Python3 is specifically required to apply dynamic colors to your terminal.
+* **Fonts (Recommended):** Sets up Google Sans Flex, Material Symbols Rounded, and JetBrains Mono Nerd Font for the intended visual experience.
+* **Terminal Setup (Optional):** Installs Kitty, Fish, and Starship if you want your terminal to match the shell's aesthetics.
+* **CLI Tool (Optional):** Installs the Nandoroid CLI for unified command line control.
 
-### Step 2: Install Dependencies
+### 3. Copying Configuration Files
+The script will safely copy necessary configuration files into your `~/.config/` directory:
+* `quickshell/nandoroid/` contains the actual shell.
+* `matugen/` contains template configurations for theme generation.
+* `starship.toml` provides the custom prompt layout if you use Starship.
 
-The installer separates dependencies into three groups:
-
-| Group        | Required?   | What's Included                                                                   |
-| :----------- | :---------- | :-------------------------------------------------------------------------------- |
-| **Core**     | Yes         | Hyprland, Quickshell, Pipewire, NetworkManager, Matugen, CLI tools, Python3, etc. |
-| **Fonts**    | Recommended | Google Sans Flex, Material Symbols Rounded, JetBrains Mono NF                     |
-| **Terminal** | Optional    | Kitty, Fish, Starship (for themed terminal aesthetic)                             |
-| **CLI Tool** | Optional    | Nandoroid CLI (unified control interface)                                         |
-
-> **Note on Python:** The shell uses a Python3 script (`apply_terminal_colors.sh`) to apply dynamic colors to your terminal emulators. Python3 is included in the core dependencies.
-
-### Step 3: Copy Config Files
-
-Copies the required config files to `~/.config/`:
-
-- `quickshell/nandoroid/`: the shell itself
-- `matugen/`: template configs for theme generation
-- `starship.toml`: prompt config (only useful if starship is installed)
-
-### Step 4: Install Nandoroid CLI (Optional)
-
-You can install the optional CLI tool for easy control of the shell from your terminal:
+### 4. Setting Up Nandoroid CLI (Optional)
+If you skipped the CLI tool during the main installation, you can always install it later. It provides a convenient way to control the shell from your terminal.
 
 ```bash
 bash -c "$(curl -fsSL https://raw.githubusercontent.com/na-ive/nandoroid-cli/main/install.sh)"
 ```
 
-This will install the `nandoroid` binary to `~/.local/bin/`. Make sure this directory is in your `$PATH`.
+This installs the `nandoroid` binary to `~/.local/bin/`. Just ensure that directory is added to your system's `$PATH`.
 
-### Step 5: Injection (Optional)
+### 5. Configuration Injection (Optional)
+The installer can safely append source lines to your existing configurations without deleting your personal settings:
+* **Kitty:** Injects `include current-theme.conf` for dynamic color support.
+* **Fish:** Injects the Starship initialization command.
+* **Hyprland:** Creates a dedicated `nandoroid.lua` file and sources it in your main configuration.
 
-Appends source/include lines to your existing configs (**non-destructive**):
+### 6. Selecting an Update Channel
+You can choose how you want to receive updates:
+* **Stable:** Follows official release tags.
+* **Canary:** Follows the absolute latest commits on the main branch for cutting edge features.
 
-- **Kitty**: Adds `include current-theme.conf` for dynamic Matugen colors
-- **Fish**: Adds `starship init fish | source` for the prompt
-- **Hyprland**: Creates `~/.config/hypr/nandoroid/nandoroid.conf` and sources it
+## Post-Installation Steps
 
-### Step 5: Update Channel
-
-- **Stable**: Follows git tags (release versions)
-- **Canary**: Follows the latest commit on `main`
-
-## Post-Installation
-
-### Start the Shell
+### Starting the Shell
+If you allowed the installer to inject configurations, you can simply restart Hyprland. Otherwise, you can launch the shell manually:
 
 ```bash
-# If injection was done, just restart Hyprland
-# Otherwise, start manually:
 quickshell -c nandoroid
 ```
 
-### Environment Portals
-
-For file pickers, screen sharing, and other desktop integration features to work, ensure you have the portals running. These are installed by the dependency step, but you may need to enable them:
+### Verifying Environment Portals
+For crucial features like screen sharing and file pickers to work, the desktop portals must be active. They usually start automatically with Hyprland, but you can verify their status:
 
 ```bash
-# These should auto-start on Hyprland sessions, but verify:
 systemctl --user status xdg-desktop-portal-hyprland
 systemctl --user status xdg-desktop-portal-gtk
 ```
 
-If they're not running:
+If they are not running, enable and start them manually:
 
 ```bash
 systemctl --user enable --now xdg-desktop-portal-hyprland
 systemctl --user enable --now xdg-desktop-portal-gtk
 ```
 
-### Generate Initial Theme
+### Generating Your First Theme
+When you first launch the shell, it will use a default color palette. To personalize it:
+1. Open the Quick Settings or the main Settings panel.
+2. Select and apply a new wallpaper.
+3. Matugen will automatically extract colors from your wallpaper and generate a fresh Material 3 theme across your entire system.
 
-On first launch, the shell will use default colors. To generate your theme:
+## Keeping Everything Updated
 
-1. Set a wallpaper through the shell's Quick Settings or Settings panel
-2. Matugen will automatically generate Material 3 colors from your wallpaper
+When a new version is released, you have two easy ways to update your setup:
 
-## Updating
+### Graphical Shell Update (Recommended)
+Open the **Nandoroid Settings** panel, navigate to the **About** section, and click on **Shell Update**. From there, you can easily choose to update everything or just the shell with a single click.
+
+### Manual Terminal Update
+If you prefer the command line, you can run the update script directly:
 
 ```bash
-# Update everything (shell + matugen templates + starship config)
+# Update everything including the shell, matugen templates, and starship config
 ~/.local/src/nandoroid/update.sh all
 
-# Update shell only (won't touch matugen/starship/hyprland configs)
+# Update only the shell logic, leaving your other configs completely untouched
 ~/.local/src/nandoroid/update.sh shell
 ```
 
-The `all` mode uses `cp -r` to overlay new files and will **not** delete your existing configurations. Your personal Hyprland keybinds, fish functions, kitty settings, etc. remain untouched.
+Whichever method you choose, updating is non-destructive. It safely overlays new files without deleting your existing configurations, so your personal Hyprland keybinds, Fish functions, and Kitty settings are always safe.
 
-## Troubleshooting
+## Troubleshooting Common Issues
 
-| Issue                            | Solution                                                             |
-| :------------------------------- | :------------------------------------------------------------------- |
-| Icons show as squares/missing    | Install `ttf-material-symbols-variable-git` from AUR                 |
-| Font looks wrong / fallback font | Install Google Sans Flex via the install script (cloned from GitHub) |
-| No file picker popup             | Ensure `xdg-desktop-portal-gtk` is running                           |
-| No screen share dialog           | Ensure `xdg-desktop-portal-hyprland` is running                      |
-| Terminal colors not applying     | Check that `python3` is installed                                    |
-| Terminal context menu not opening| Ensure `kitty` is installed (default terminal used in context menu)  |
-| Audio effects not applying       | Ensure `easyeffects --daemon` is running in background               |
-| DND not syncing with events      | Check if "Focus" is enabled for your event in the Dashboard          |
-| Shell won't start                | Run `quickshell -c nandoroid` from terminal and check errors         |
+**First step: Run a Dependency Check!** 
+If something feels broken or missing, chances are a required package is not installed. When you first install the shell, the **Onboarding Panel** will automatically open to help you verify these dependencies. If you need to check them again later, simply navigate to **Nandoroid Settings > About > Dependency Check**. This built in tool will tell you exactly what you are missing.
+
+If all dependencies are met and you still face issues, check these common solutions:
+
+| Issue | Solution |
+| :--- | :--- |
+| Icons show as squares or are missing | Install `ttf-material-symbols-variable-git` from the AUR. |
+| The font looks wrong or uses a fallback | Install Google Sans Flex via the install script. |
+| File picker popups do not appear | Make sure `xdg-desktop-portal-gtk` is running. |
+| Screen share dialogs do not appear | Make sure `xdg-desktop-portal-hyprland` is running. |
+| Terminal colors are not applying | Verify that `python3` is installed on your system. |
+| The terminal context menu does not open | Ensure `kitty` is installed, as it is the default terminal used. |
+| Audio effects are not working | Make sure `easyeffects --daemon` is running in the background. |
+| Do Not Disturb does not sync with events | Check if the "Focus" toggle is enabled for your event in the Dashboard. |
+| The shell refuses to start | Run `quickshell -c nandoroid` from a terminal and check the output for errors. |

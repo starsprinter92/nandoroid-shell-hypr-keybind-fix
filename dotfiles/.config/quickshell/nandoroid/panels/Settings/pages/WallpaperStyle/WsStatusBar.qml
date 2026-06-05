@@ -15,7 +15,7 @@ ColumnLayout {
 
     SearchHandler { 
         searchString: "Status Bar"
-        aliases: ["Bar", "Top Bar", "Panel"]
+        aliases: ["Bar", "Top Bar", "Panel", "Statusbar"]
     }
 
     // ── Status Bar Section ──

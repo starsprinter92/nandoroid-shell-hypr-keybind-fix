@@ -33,7 +33,8 @@
     { "name": "hyprsunset", "command": "hyprsunset", "description": "Blue light filter" },
     { "name": "wl-clipboard", "command": "wl-copy", "description": "Wayland clipboard" },
     { "name": "cliphist", "command": "cliphist", "description": "Clipboard history" },
-    { "name": "zenity", "command": "zenity", "description": "System dialogs" }
+    { "name": "zenity", "command": "zenity", "description": "System dialogs" },
+    { "name": "translate-shell", "command": "trans", "description": "CLI translation tool" }
   ],
   "theming": [
     { "name": "nwg-look", "command": "nwg-look", "description": "GTK theme manager (External apps)" },

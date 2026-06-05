@@ -243,6 +243,15 @@ Singleton {
                 }
             }
 
+            // --- Language ---
+            property JsonObject language: JsonObject {
+                property string ui: "auto"
+                property JsonObject translator: JsonObject {
+                    property string sourceLanguage: "auto"
+                    property string targetLanguage: "en"
+                }
+            }
+
             // --- Workspaces ---
             property JsonObject workspaces: JsonObject {
                 property int max_shown: 5

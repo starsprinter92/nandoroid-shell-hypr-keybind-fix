@@ -16,7 +16,7 @@ RowLayout {
     spacing: 16 * Appearance.effectiveScale
 
     property string srcLang: (Config.ready && Config.options.language && Config.options.language.translator) ? Config.options.language.translator.sourceLanguage : "auto"
-    property string targetLang: (Config.ready && Config.options.language && Config.options.language.translator) ? Config.options.language.translator.targetLanguage : "id"
+    property string targetLang: (Config.ready && Config.options.language && Config.options.language.translator) ? Config.options.language.translator.targetLanguage : "en"
 
     // Unified trigger logic
     function triggerTranslate() {
@@ -54,7 +54,7 @@ RowLayout {
                 StyledComboBox {
                     id: srcCombo
                     Layout.preferredWidth: 130 * Appearance.effectiveScale
-                    model: (TranslationService.availableLanguages && TranslationService.availableLanguages.length > 0) ? TranslationService.availableLanguages : ["auto", "id", "en", "ja", "zh", "ko", "fr", "de", "es", "it", "ru", "pt"]
+                    model: (TranslationService.availableLanguages && TranslationService.availableLanguages.length > 0) ? TranslationService.availableLanguages : ["auto", "en", "id", "ja", "zh", "ko", "fr", "de", "es", "it", "ru", "pt"]
                     text: root.srcLang
                     onAccepted: (value) => {
                         root.srcLang = value;
@@ -122,7 +122,7 @@ RowLayout {
                     id: targetCombo
                     Layout.preferredWidth: 130 * Appearance.effectiveScale
                     model: {
-                        const base = (TranslationService.availableLanguages && TranslationService.availableLanguages.length > 0) ? TranslationService.availableLanguages : ["id", "en", "ja", "zh", "ko", "fr", "de", "es", "it", "ru", "pt"];
+                        const base = (TranslationService.availableLanguages && TranslationService.availableLanguages.length > 0) ? TranslationService.availableLanguages : ["en", "id", "ja", "zh", "ko", "fr", "de", "es", "it", "ru", "pt"];
                         return base.filter(l => l !== "auto");
                     }
                     text: root.targetLang
